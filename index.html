@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pipeline Design Calculator</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-  <!-- jsPDF Library -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- html2canvas Library (for charts in PDF) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
@@ -20,11 +20,14 @@
       --border-color: #dfe6ec;
       --input-bg-color: #ffffff;
       --input-focus-border: #3498db;
-      --primary-color: #3498db; /* Blue - Calculate */
+      --primary-color: #3498db;
+      /* Blue - Calculate */
       --primary-hover-color: #2980b9;
-      --btn-reset-bg: #f39c12; /* Orange - Reset */
+      --btn-reset-bg: #f39c12;
+      /* Orange - Reset */
       --btn-reset-hover-bg: #e67e22;
-      --btn-export-bg: #2ecc71; /* Green - Export */
+      --btn-export-bg: #2ecc71;
+      /* Green - Export */
       --btn-export-hover-bg: #27ae60;
       --success-color: #2ecc71;
       --success-bg-color: #e8f9f1;
@@ -37,7 +40,6 @@
       --chart-tooltip-text: #ffffff;
       --toggle-icon: '☀️';
       --toggle-bg: #e0e0e0;
-      /* --collapsible-bg: #f9fafb; -- No longer needed */
     }
 
     [data-theme="dark"] {
@@ -48,11 +50,14 @@
       --border-color: #3a414f;
       --input-bg-color: #2f3542;
       --input-focus-border: #5fa8e4;
-      --primary-color: #5fa8e4; /* Lighter Blue */
+      --primary-color: #5fa8e4;
+      /* Lighter Blue */
       --primary-hover-color: #7fbbe8;
-      --btn-reset-bg: #f1c40f; /* Yellow-Orange */
+      --btn-reset-bg: #f1c40f;
+      /* Yellow-Orange */
       --btn-reset-hover-bg: #f39c12;
-      --btn-export-bg: #27ae60; /* Darker Green */
+      --btn-export-bg: #27ae60;
+      /* Darker Green */
       --btn-export-hover-bg: #2ecc71;
       --success-color: #3ae374;
       --success-bg-color: #1f3a2b;
@@ -65,10 +70,11 @@
       --chart-tooltip-text: #252a33;
       --toggle-icon: '🌙';
       --toggle-bg: #4a5162;
-      /* --collapsible-bg: #2f3542; -- No longer needed */
     }
 
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, fill 0.3s ease;
     }
@@ -98,8 +104,15 @@
     }
 
     @keyframes slideInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h1 {
@@ -119,11 +132,16 @@
       color: var(--text-muted-color);
       cursor: help;
     }
-    label[for="D"], label[for="t"], label[for="P"], label[for="S"] {
-        cursor: default;
+
+    label[for="D"],
+    label[for="t"],
+    label[for="P"],
+    label[for="S"] {
+      cursor: default;
     }
 
-    input[type="number"], select {
+    input[type="number"],
+    select {
       width: 100%;
       padding: 12px 15px;
       border-radius: 8px;
@@ -136,27 +154,34 @@
       appearance: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    input[type="number"]:focus, select:focus {
-        outline: none;
-        border-color: var(--input-focus-border);
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--input-focus-border);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     }
+
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
+      -webkit-appearance: none;
+      margin: 0;
     }
-    input[type=number] { -moz-appearance: textfield; }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
 
     select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23888'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 15px center;
-        background-size: 16px 16px;
-        padding-right: 40px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23888'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 16px 16px;
+      padding-right: 40px;
     }
+
     [data-theme="dark"] select {
-         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23bbb'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23bbb'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
     }
 
     button {
@@ -170,7 +195,10 @@
       outline: none;
       color: white;
     }
-    button:active { transform: translateY(1px); }
+
+    button:active {
+      transform: translateY(1px);
+    }
 
     .btn-group {
       display: grid;
@@ -179,14 +207,37 @@
       margin-top: 25px;
     }
 
-    .btn-calculate { background-color: var(--primary-color); }
-    .btn-calculate:hover { background-color: var(--primary-hover-color); }
-    .btn-reset { background-color: var(--btn-reset-bg); }
-    .btn-reset:hover { background-color: var(--btn-reset-hover-bg); }
-    [data-theme="dark"] .btn-reset { color: #333; }
-    [data-theme="dark"] .btn-reset:hover { color: #222; }
-    .btn-export { background-color: var(--btn-export-bg); }
-    .btn-export:hover { background-color: var(--btn-export-hover-bg); }
+    .btn-calculate {
+      background-color: var(--primary-color);
+    }
+
+    .btn-calculate:hover {
+      background-color: var(--primary-hover-color);
+    }
+
+    .btn-reset {
+      background-color: var(--btn-reset-bg);
+    }
+
+    .btn-reset:hover {
+      background-color: var(--btn-reset-hover-bg);
+    }
+
+    [data-theme="dark"] .btn-reset {
+      color: #333;
+    }
+
+    [data-theme="dark"] .btn-reset:hover {
+      color: #222;
+    }
+
+    .btn-export {
+      background-color: var(--btn-export-bg);
+    }
+
+    .btn-export:hover {
+      background-color: var(--btn-export-hover-bg);
+    }
 
     .output {
       margin-top: 25px;
@@ -198,8 +249,15 @@
       animation: fadeIn 0.5s ease;
       color: var(--text-color);
     }
-     [data-theme="dark"] .output { color: var(--text-color); }
-     .output strong { color: var(--success-color); font-weight: 600; }
+
+    [data-theme="dark"] .output {
+      color: var(--text-color);
+    }
+
+    .output strong {
+      color: var(--success-color);
+      font-weight: 600;
+    }
 
     .error {
       margin-top: 25px;
@@ -211,58 +269,196 @@
       font-weight: 500;
       animation: fadeIn 0.5s ease;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
 
     .dark-toggle {
-      position: absolute; top: 25px; right: 25px;
-      background: var(--toggle-bg); border: none; cursor: pointer;
-      font-size: 1.3rem; border-radius: 50%;
-      width: 40px; height: 40px; display: flex;
-      align-items: center; justify-content: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      background: var(--toggle-bg);
+      border: none;
+      cursor: pointer;
+      font-size: 1.3rem;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, background-color 0.3s ease;
-      z-index: 10; color: var(--text-color);
+      z-index: 10;
+      color: var(--text-color);
     }
+
     .dark-toggle::before {
-        content: var(--toggle-icon);
-        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      content: var(--toggle-icon);
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
-     html[data-theme="dark"] .dark-toggle::before { transform: rotate(360deg); }
-     html[data-theme="light"] .dark-toggle::before { transform: rotate(0deg); }
 
-    canvas { margin-top: 25px; border-radius: 8px; }
+    html[data-theme="dark"] .dark-toggle::before {
+      transform: rotate(360deg);
+    }
 
-    /* Removed Collapsible Section Styles */
+    html[data-theme="light"] .dark-toggle::before {
+      transform: rotate(0deg);
+    }
+
+    canvas {
+      margin-top: 25px;
+      border-radius: 8px;
+    }
 
     .form-section {
       margin-bottom: 20px;
       padding-bottom: 20px;
-      /* border-bottom: 1px solid var(--border-color); -- Removed border for cleaner look without collapsible */
     }
-    /* .form-section:last-of-type {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    } */
 
     .chart-container {
-      position: relative; margin: 20px 0;
-      height: 300px; width: 100%;
+      position: relative;
+      margin: 20px 0;
+      height: 300px;
+      width: 100%;
     }
-    /* Added explicit style for line chart container to ensure it's displayed */
+
     #lineChartContainer {
-        margin-top: 30px; /* Space between charts */
+      margin-top: 30px;
+    }
+
+    /* --- NEW: Helper Row for NPS/WT Selectors --- */
+    .helper-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 15px;
+    }
+
+    .helper-group {
+      flex: 1;
+    }
+
+    .helper-group label {
+      margin-top: 0;
+      font-size: 0.85em;
+    }
+
+    /* --- NEW: COPYRIGHT SCROLL ANIMATION --- */
+    #copyright-scroll {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 6px 0 10px;
+      margin-top: 35px;
+      font-size: 0.75rem;
+      color: var(--text-muted-color);
+      font-family: monospace;
+      overflow: hidden;
+    }
+
+    #copyright-scroll .copyright-inner {
+      display: inline-block;
+      padding-left: 100%;
+      white-space: nowrap;
+      animation: scrollText 18s linear infinite;
+      opacity: 0.75;
+    }
+
+    @keyframes scrollText {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    @media print {
+      #copyright-scroll {
+        display: none !important;
+      }
     }
 
     @media (max-width: 600px) {
-        .chart-container { height: 250px; }
-         .container { padding: 20px 25px; }
-         h1 { padding-right: 45px; font-size: 1.5em; }
-         .dark-toggle { top: 18px; right: 15px; width: 35px; height: 35px; font-size: 1.1rem; }
+      .chart-container {
+        height: 250px;
+      }
+
+      .container {
+        padding: 20px 25px;
+      }
+
+      h1 {
+        padding-right: 45px;
+        font-size: 1.5em;
+      }
+
+      .dark-toggle {
+        top: 18px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 1.1rem;
+      }
     }
-    footer { background-color: var(--footer-bg); color: var(--footer-text); text-align: center; padding: 20px 40px; font-size: 0.9rem; border-top: 1px solid var(--border-color); transition: background-color var(--transition-speed) var(--transition-timing), color var(--transition-speed) var(--transition-timing), border-color var(--transition-speed) var(--transition-timing); }
+
+    .table-container {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: var(--card-color);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px var(--shadow-color);
+    }
+
+    .result-table th,
+    .result-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .result-table th {
+      background-color: var(--bg-color);
+      font-weight: 600;
+      color: var(--text-muted-color);
+    }
+
+    .result-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .result-table tr:hover {
+      background-color: var(--bg-color);
+    }
+
+    footer {
+      /* Previous footer styles cleaned up, now handled by #copyright-scroll */
+      background-color: transparent;
+      color: var(--text-muted-color);
+      text-align: center;
+      padding: 0;
+      border-top: none;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Pipeline Design Calculator</h1>
@@ -270,9 +466,36 @@
 
     <form id="calcForm" onsubmit="event.preventDefault(); calculate();">
       <div class="form-section">
-        <p style="text-align: center; color: var(--text-muted-color); font-size: 0.9em; margin-top: -10px; margin-bottom: 20px;">
-          Calculate required Thickness for a given Design Pressure or vice versa. <br/> Enter only one of the two.
+        <p
+          style="text-align: center; color: var(--text-muted-color); font-size: 0.9em; margin-top: -10px; margin-bottom: 20px;">
+          Calculate required Thickness for a given Design Pressure or vice versa. <br /> Enter only one of the two.
         </p>
+
+        <div class="helper-row">
+          <div class="helper-group">
+            <label for="sel-nps" style="color: var(--primary-color); cursor: pointer;">Nominal Pipe Size (NPS)</label>
+            <select id="sel-nps">
+              <option value="" disabled selected>Select NPS...</option>
+            </select>
+          </div>
+          <div class="helper-group">
+            <label for="sel-std-wt" style="color: var(--primary-color); cursor: pointer;">Standard Thickness</label>
+            <select id="sel-std-wt">
+              <option value="" disabled selected>Select NPS First</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="helper-row">
+          <div class="helper-group">
+            <label for="CA">Corrosion Allowance (mm)</label>
+            <input type="number" id="CA" step="any" min="0" value="0" />
+          </div>
+          <div class="helper-group">
+            <label for="Tol">Mill Tolerance (%)</label>
+            <input type="number" id="Tol" step="any" min="0" value="0" max="100" />
+          </div>
+        </div>
 
         <label for="D">Outside Diameter (D, inches)</label>
         <input type="number" id="D" step="any" min="0" required />
@@ -283,10 +506,17 @@
         <label for="P">Internal Design Pressure (P, kg/cm²)</label>
         <input type="number" id="P" step="any" min="0" oninput="clearInput('t')" />
 
-        <label for="S">SMYS (S, ksi)</label>
-        <input type="number" id="S" step="any" min="0" value="60" required />
+        <label for="sel-grade" style="color: var(--primary-color); cursor: pointer;">Material Grade (API 5L)</label>
+        <select id="sel-grade">
+          <option value="" disabled selected>Select Grade...</option>
+        </select>
 
-        <label for="F" title="Design factor based on Location Class (1-4) and facility type (e.g., Pipelines, Crossings, Stations per ASME B31.8 Table 841.1.6-2). Lower class number = higher factor = less conservative.">Location Class Design Factor (F)</label>
+        <label for="S">SMYS (S, psi)</label>
+        <input type="number" id="S" step="any" min="0" value="35500" required />
+
+        <label for="F"
+          title="Design factor based on Location Class (1-4) and facility type (e.g., Pipelines, Crossings, Stations per ASME B31.8 Table 841.1.6-2). Lower class number = higher factor = less conservative.">Location
+          Class Design Factor (F)</label>
         <select id="F">
           <option value="0.72">Class 1 (F=0.72)</option>
           <option value="0.6">Class 2 (F=0.60)</option>
@@ -294,43 +524,191 @@
           <option value="0.4">Class 4 (F=0.40)</option>
         </select>
 
-        <label for="E" title="Longitudinal joint quality factor based on pipe manufacturing method (per ASME B31.8 Table 841.1.7-1). 1.0 for Seamless, ERW, SAW. 0.8 for Electric-Fusion Welded (some classes). 0.6 for Furnace-Butt Welded.">Longitudinal Joint Factor (E)</label>
+        <label for="E"
+          title="Longitudinal joint quality factor based on pipe manufacturing method (per ASME B31.8 Table 841.1.7-1). 1.0 for Seamless, ERW, SAW. 0.8 for Electric-Fusion Welded (some classes). 0.6 for Furnace-Butt Welded.">Longitudinal
+          Joint Factor (E)</label>
         <select id="E">
           <option value="1.0">1.0 (Seamless / ERW / SAW)</option>
           <option value="0.8">0.8 (Electric-Fusion Welded)</option>
           <option value="0.6">0.6 (Furnace-Butt Welded)</option>
         </select>
 
-        <label for="T" title="Temperature derating factor (per ASME B31.8 Table 841.1.8-1). 1.0 for ≤ 250°F (121°C). Decreases for higher temps: 0.967 @ 300°F (149°C), 0.933 @ 350°F (177°C), 0.900 @ 400°F (204°C), 0.867 @ 450°F (232°C). Interpolate for intermediate temperatures.">Temperature Derating Factor (T)</label>
+        <label for="T"
+          title="Temperature derating factor (per ASME B31.8 Table 841.1.8-1). 1.0 for ≤ 250°F (121°C). Decreases for higher temps: 0.967 @ 300°F (149°C), 0.933 @ 350°F (177°C), 0.900 @ 400°F (204°C), 0.867 @ 450°F (232°C). Interpolate for intermediate temperatures.">Temperature
+          Derating Factor (T)</label>
         <input type="number" step="0.01" id="T" min="0" max="1" value="1.0" required />
 
         <div class="btn-group">
           <button type="submit" class="btn-calculate">Calculate</button>
           <button type="button" onclick="resetForm()" class="btn-reset">Reset</button>
           <button type="button" onclick="exportToPDF()" class="btn-export">Export PDF</button>
+          <button type="button" onclick="saveScenario()" class="btn-reset"
+            style="background-color:#9b59b6;">Save</button>
+          <button type="button" onclick="loadScenario()" class="btn-reset"
+            style="background-color:#8e44ad;">Load</button>
         </div>
 
         <div id="result" class="output" style="display: none;"></div>
+        <div id="resultTable" class="table-container" style="display: none;"></div>
         <div id="error-message" class="error" style="display: none;"></div>
       </div>
 
-      <!-- Charts are now directly in the flow -->
       <div class="chart-container" id="barChartContainer" style="display: none;">
-         <canvas id="barChart"></canvas>
+        <canvas id="barChart"></canvas>
       </div>
       <div class="chart-container" id="lineChartContainer" style="display: none;">
-         <canvas id="pressureThicknessChart"></canvas>
+        <canvas id="pressureThicknessChart"></canvas>
       </div>
-      <div id="lineChartError" class="error" style="display: none; margin-top: 15px;"></div> <!-- Error for line chart if D/S invalid -->
+      <div id="lineChartError" class="error" style="display: none; margin-top: 15px;"></div>
     </form>
-          <footer class="text-center text-sm text-gray-600 dark:text-gray-400 mt-8 mb-4">
-                  <p>Made by <strong>Ramakrishna Mullapudi</strong> 🤝 <strong>Gemini</strong></p>
-                  <p>Copyright ©️ 2025</p>
-          </footer>
+
+    <footer id="copyright-scroll">
+      <span class="copyright-inner">
+        Designed & Developed by Ramakrishna Mullapudi © 2025
+      </span>
+    </footer>
   </div>
 
   <script>
-    const { jsPDF } = window.jspdf; // Destructure jsPDF
+    const { jsPDF } = window.jspdf;
+
+    // --- 1. NPS & GRADE DATA ---
+    const NPS_DATA = {
+      // ... (existing NPS data remains, handled below if needed, but for now we just append Grade data here or use a separate object)
+      "4": { odIn: 4.5, odMm: 114.3 },
+      "5": { odIn: 5.563, odMm: 141.3 },
+      "6": { odIn: 6.625, odMm: 168.3 },
+      "8": { odIn: 8.625, odMm: 219.1 },
+      "10": { odIn: 10.75, odMm: 273.0 },
+      "12": { odIn: 12.75, odMm: 323.9 },
+      "14": { odIn: 14.0, odMm: 355.6 },
+      "16": { odIn: 16.0, odMm: 406.4 },
+      "18": { odIn: 18.0, odMm: 457.2 },
+      "20": { odIn: 20.0, odMm: 508.0 },
+      "22": { odIn: 22.0, odMm: 558.8 },
+      "24": { odIn: 24.0, odMm: 609.6 },
+      "26": { odIn: 26.0, odMm: 660.4 },
+      "28": { odIn: 28.0, odMm: 711.2 },
+      "30": { odIn: 30.0, odMm: 762.0 },
+      "32": { odIn: 32.0, odMm: 812.8 },
+      "34": { odIn: 34.0, odMm: 863.6 },
+      "36": { odIn: 36.0, odMm: 914.4 },
+      "38": { odIn: 38.0, odMm: 965.2 },
+      "40": { odIn: 40.0, odMm: 1016.0 },
+      "42": { odIn: 42.0, odMm: 1067.0 },
+      "44": { odIn: 44.0, odMm: 1118.0 },
+      "46": { odIn: 46.0, odMm: 1168.0 },
+      "48": { odIn: 48.0, odMm: 1219.0 }
+    };
+
+    const API_GRADES = {
+      "A25": 25000, "A": 30000, "B": 35500,
+      "X42": 42100, "X46": 46400, "X52": 52200, "X56": 56600,
+      "X60": 60200, "X65": 65300, "X70": 70300, "X80": 80500
+    };
+
+    const largeWallInches = [
+      0.188, 0.203, 0.219, 0.250, 0.281, 0.312, 0.344, 0.375, 0.406, 0.438, 0.469,
+      0.500, 0.562, 0.594, 0.625, 0.688, 0.719, 0.750, 0.812, 0.844, 0.875, 0.906,
+      0.938, 1.000, 1.031, 1.062, 1.125, 1.188, 1.219, 1.250, 1.281, 1.312, 1.375,
+      1.438, 1.500, 1.750, 1.969
+    ];
+
+    const THICKNESS_INCH = {
+      "4": [0.083, 0.109, 0.120, 0.125, 0.141, 0.156, 0.172, 0.188, 0.203, 0.219, 0.237, 0.250, 0.281, 0.312, 0.337, 0.438, 0.531, 0.674],
+      "5": [0.083, 0.109, 0.125, 0.134, 0.156, 0.188, 0.219, 0.258, 0.281, 0.312, 0.344, 0.375, 0.500, 0.625, 0.750],
+      "6": [0.083, 0.109, 0.125, 0.134, 0.141, 0.156, 0.172, 0.188, 0.203, 0.219, 0.250, 0.280, 0.312, 0.344, 0.375, 0.432, 0.500, 0.562, 0.625, 0.719, 0.750, 0.864, 0.875],
+      "8": [0.109, 0.125, 0.148, 0.156, 0.188, 0.203, 0.219, 0.250, 0.277, 0.312, 0.322, 0.344, 0.375, 0.406, 0.438, 0.500, 0.562, 0.594, 0.625, 0.719, 0.750, 0.812, 0.875, 0.906, 1.000, 1.125],
+      "10": [0.134, 0.156, 0.165, 0.188, 0.203, 0.219, 0.250, 0.279, 0.307, 0.344, 0.365, 0.438, 0.500, 0.562, 0.594, 0.625, 0.719, 0.812, 0.844, 0.875, 0.938, 1.000, 1.125, 1.250, 1.375, 1.438],
+      "12": [0.156, 0.172, 0.180, 0.188, 0.203, 0.219, 0.250, 0.281, 0.312, 0.330, 0.344, 0.375, 0.406, 0.438, 0.500, 0.562, 0.625, 0.688, 0.750, 0.812, 0.844, 0.875, 0.938, 1.000, 1.062, 1.125, 1.250, 1.312, 1.375, 1.500],
+      "14": largeWallInches, "16": largeWallInches, "18": largeWallInches, "20": largeWallInches,
+      "22": largeWallInches, "24": largeWallInches, "26": largeWallInches, "28": largeWallInches,
+      "30": largeWallInches, "32": largeWallInches, "34": largeWallInches, "36": largeWallInches,
+      "38": largeWallInches, "40": largeWallInches, "42": largeWallInches, "44": largeWallInches,
+      "46": largeWallInches, "48": largeWallInches
+    };
+
+    // --- 2. LOGIC FUNCTIONS ---
+    function initNps() {
+      const npsSel = document.getElementById('sel-nps');
+      const npsKeys = Object.keys(NPS_DATA).sort((a, b) => parseFloat(a) - parseFloat(b));
+
+      npsKeys.forEach(nps => {
+        const opt = document.createElement("option");
+        opt.value = nps;
+        opt.textContent = `NPS ${nps}"`;
+        npsSel.appendChild(opt);
+      });
+
+      // Initialize Grades
+      const gradeSel = document.getElementById('sel-grade');
+      Object.keys(API_GRADES).forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g;
+        opt.textContent = `API 5L Grade ${g}`;
+        gradeSel.appendChild(opt);
+      });
+
+      // Add Listeners
+      npsSel.addEventListener('change', handleNpsChange);
+      document.getElementById('sel-std-wt').addEventListener('change', handleStdWtChange);
+      gradeSel.addEventListener('change', handleGradeChange);
+    }
+
+    function handleGradeChange() {
+      const grade = document.getElementById('sel-grade').value;
+      if (API_GRADES[grade]) {
+        document.getElementById('S').value = API_GRADES[grade];
+      }
+    }
+
+    function handleNpsChange() {
+      const npsVal = document.getElementById('sel-nps').value;
+      if (!npsVal || !NPS_DATA[npsVal]) return;
+
+      // 1. Auto-fill Outside Diameter (D)
+      const data = NPS_DATA[npsVal];
+      document.getElementById('D').value = data.odIn;
+
+      // 2. Populate Standard Thickness Dropdown
+      populateStdWt(npsVal);
+
+      // 3. Clear Thickness & Pressure to force user selection
+      document.getElementById('t').value = '';
+      document.getElementById('P').value = '';
+      clearInput('t');
+    }
+
+    function populateStdWt(npsKey) {
+      const wtSel = document.getElementById('sel-std-wt');
+      wtSel.innerHTML = '<option value="" disabled selected>Select WT</option>';
+
+      const inches = THICKNESS_INCH[npsKey] || [];
+      const uniqueInches = Array.from(new Set(inches)).sort((a, b) => a - b);
+
+      uniqueInches.forEach(inchVal => {
+        const mmVal = inchVal * 25.4;
+        const opt = document.createElement('option');
+        opt.value = inchVal; // Value is in inches
+        opt.innerText = `${mmVal.toFixed(2)} mm (${inchVal.toFixed(3)}")`;
+        wtSel.appendChild(opt);
+      });
+    }
+
+    function handleStdWtChange() {
+      const inchVal = parseFloat(document.getElementById('sel-std-wt').value);
+      if (isNaN(inchVal)) return;
+
+      // 1. Auto-fill Wall Thickness (t) in MM
+      const mmVal = inchVal * 25.4;
+      document.getElementById('t').value = mmVal.toFixed(2);
+
+      // 2. Clear Pressure (P)
+      document.getElementById('P').value = '';
+
+      // 3. Clear results to force re-calculation
+      clearInput('P');
+    }
 
     let barChart = null;
     let lineChart = null;
@@ -341,14 +719,14 @@
     const DESIGN_FACTORS = [0.72, 0.6, 0.5, 0.4];
 
     function mapFtoClass(fValue) {
-        const fStr = Number(fValue).toFixed(2);
-        switch (fStr) {
-            case '0.72': return 'Class 1';
-            case '0.60': return 'Class 2';
-            case '0.50': return 'Class 3';
-            case '0.40': return 'Class 4';
-            default: return `F=${fValue}`;
-        }
+      const fStr = Number(fValue).toFixed(2);
+      switch (fStr) {
+        case '0.72': return 'Class 1';
+        case '0.60': return 'Class 2';
+        case '0.50': return 'Class 3';
+        case '0.40': return 'Class 4';
+        default: return `F=${fValue}`;
+      }
     }
 
     function toggleDarkMode() {
@@ -359,45 +737,42 @@
     }
 
     function updateChartThemes() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color').trim();
-        const labelColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-label-color').trim();
-        const tooltipBg = getComputedStyle(document.documentElement).getPropertyValue('--chart-tooltip-bg').trim();
-        const tooltipColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-tooltip-text').trim();
-        const datalabelColor = isDark ? '#eee' : '#333';
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color').trim();
+      const labelColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-label-color').trim();
+      const tooltipBg = getComputedStyle(document.documentElement).getPropertyValue('--chart-tooltip-bg').trim();
+      const tooltipColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-tooltip-text').trim();
+      const datalabelColor = isDark ? '#eee' : '#333';
 
-        const commonChartOptionsUpdate = {
-             scales: {
-                x: { grid: { color: gridColor }, ticks: { color: labelColor }, title: { color: labelColor } },
-                y: { grid: { color: gridColor }, ticks: { color: labelColor }, title: { color: labelColor } }
-            },
-            plugins: {
-                tooltip: { backgroundColor: tooltipBg, titleColor: tooltipColor, bodyColor: tooltipColor },
-                title: { color: labelColor },
-                legend: { labels: { color: labelColor } }
-            }
-        };
+      const commonChartOptionsUpdate = {
+        scales: {
+          x: { grid: { color: gridColor }, ticks: { color: labelColor }, title: { color: labelColor } },
+          y: { grid: { color: gridColor }, ticks: { color: labelColor }, title: { color: labelColor } }
+        },
+        plugins: {
+          tooltip: { backgroundColor: tooltipBg, titleColor: tooltipColor, bodyColor: tooltipColor },
+          title: { color: labelColor },
+          legend: { labels: { color: labelColor } }
+        }
+      };
 
-        if (barChart) {
-            barChart.options = Chart.helpers.merge(barChart.options, commonChartOptionsUpdate);
-            if (barChart.options.plugins.datalabels) barChart.options.plugins.datalabels.color = datalabelColor;
-            barChart.update('none');
-        }
-        if (lineChart) {
-            lineChart.options = Chart.helpers.merge(lineChart.options, commonChartOptionsUpdate);
-            lineChart.update('none');
-        }
+      if (barChart) {
+        barChart.options = Chart.helpers.merge(barChart.options, commonChartOptionsUpdate);
+        if (barChart.options.plugins.datalabels) barChart.options.plugins.datalabels.color = datalabelColor;
+        barChart.update('none');
+      }
+      if (lineChart) {
+        lineChart.options = Chart.helpers.merge(lineChart.options, commonChartOptionsUpdate);
+        lineChart.update('none');
+      }
     }
 
     function clearInput(inputIdToClear) {
-        document.getElementById(inputIdToClear).value = '';
-        // Hide all result/chart elements when an input is cleared
-        ['result', 'error-message', 'barChartContainer', 'lineChartContainer', 'lineChartError'].forEach(id => {
-            document.getElementById(id).style.display = 'none';
-        });
+      document.getElementById(inputIdToClear).value = '';
+      ['result', 'resultTable', 'error-message', 'barChartContainer', 'lineChartContainer', 'lineChartError'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
     }
-
-    // Removed prefillAdvancedInputs as collapsible section is gone
 
     function calculate() {
       const D_val = parseFloat(document.getElementById("D").value);
@@ -407,6 +782,8 @@
       const E_val = parseFloat(document.getElementById("E").value);
       const T_val = parseFloat(document.getElementById("T").value);
       const t_in = parseFloat(document.getElementById("t").value);
+      const CA_val = parseFloat(document.getElementById("CA").value) || 0;
+      const Tol_val = parseFloat(document.getElementById("Tol").value) || 0;
 
       const resultDiv = document.getElementById("result");
       const errorDiv = document.getElementById("error-message");
@@ -414,8 +791,6 @@
       const lineChartContainer = document.getElementById("lineChartContainer");
       const lineChartErrorDiv = document.getElementById("lineChartError");
 
-
-      // Reset all result displays
       resultDiv.style.display = 'none'; resultDiv.innerHTML = "";
       errorDiv.style.display = 'none'; errorDiv.innerHTML = "";
       barChartContainer.style.display = 'none';
@@ -428,55 +803,127 @@
       if (isNaN(S_val) || S_val <= 0) { errorMsg += "<li>Valid SMYS (S > 0) is required for all calculations.</li>"; hasError = true; }
       if (isNaN(E_val) || E_val <= 0 || E_val > 1) { errorMsg += "<li>Valid Joint Factor (E) is required.</li>"; hasError = true; }
       if (isNaN(T_val) || T_val <= 0 || T_val > 1) { errorMsg += "<li>Valid Temperature Factor (T) is required.</li>"; hasError = true; }
+      if (CA_val < 0) { errorMsg += "<li>Corrosion Allowance must be non-negative.</li>"; hasError = true; }
+      if (Tol_val < 0 || Tol_val >= 100) { errorMsg += "<li>Mill Tolerance must be between 0 and 100%.</li>"; hasError = true; }
 
       const P_isEntered = !isNaN(P_in) && P_in > 0;
       const t_isEntered = !isNaN(t_in) && t_in > 0;
 
       if ((!P_isEntered && !t_isEntered) || (P_isEntered && t_isEntered)) {
         errorMsg += "<li>Please enter <strong>either</strong> Pressure (P) <strong>or</strong> Thickness (t), not both.</li>"; hasError = true;
-      } else if (P_isEntered && P_in <= 0) { errorMsg += "<li>Pressure (P) must be positive.</li>"; hasError = true;
+      } else if (P_isEntered && P_in <= 0) {
+        errorMsg += "<li>Pressure (P) must be positive.</li>"; hasError = true;
       } else if (t_isEntered && t_in <= 0) { errorMsg += "<li>Thickness (t) must be positive.</li>"; hasError = true; }
 
       if (hasError) {
         errorDiv.innerHTML = `<ul>${errorMsg}</ul>`; errorDiv.style.display = 'block'; return;
       }
 
-      const S_psi = S_val * KSI_TO_PSI;
+      const S_psi = S_val; // Input is now in PSI
       const barChartLabels = DESIGN_FACTORS.map(f => mapFtoClass(f));
       const barChartData = [];
       let resultText = ""; let calculatedValueType = "";
 
       if (P_isEntered) {
         const P_psi = P_in * KGCM2_TO_PSI;
-        calculatedValueType = 'Required Wall Thickness (mm)';
+        calculatedValueType = 'Required Nominal Thickness (mm)';
+
         DESIGN_FACTORS.forEach(f => {
-          const t_calc_in = (P_psi * D_val) / (2 * S_psi * f * E_val * T_val);
-          barChartData.push(t_calc_in / MM_TO_IN);
+          // B31.8 Formula for t: t = (P * D) / (2 * S * F * E * T)
+          const t_design_in = (P_psi * D_val) / (2 * S_psi * f * E_val * T_val);
+          const t_design_mm = t_design_in / MM_TO_IN;
+
+          // Add CA and Tolerances
+          // t_req = (t_design + CA) / (1 - Tol%)
+          const t_nom_mm = (t_design_mm + CA_val) / (1 - (Tol_val / 100));
+
+          barChartData.push(t_nom_mm);
         });
+
         const selectedIndex = DESIGN_FACTORS.indexOf(F_selected);
-        resultText = `Required Thickness for ${mapFtoClass(F_selected)} (F=${F_selected}): <strong>${barChartData[selectedIndex].toFixed(3)} mm</strong>`;
+        const req_nominal = barChartData[selectedIndex];
+
+        // Detailed breakdown for the selected case
+        const t_design_basic_in = (P_psi * D_val) / (2 * S_psi * F_selected * E_val * T_val);
+        const t_design_basic_mm = t_design_basic_in / MM_TO_IN;
+
+        resultText = `
+            <strong>Results for ${mapFtoClass(F_selected)} (F=${F_selected}):</strong><br/>
+            Basic Design Thickness: ${t_design_basic_mm.toFixed(3)} mm<br/>
+            + Corrosion Allowance (${CA_val} mm)<br/>
+            + Mill Tolerance (${Tol_val}%)<br/>
+            Required Nominal Thickness: <strong>${req_nominal.toFixed(3)} mm</strong>
+        `;
+
       } else {
-        const t_in_unit = t_in * MM_TO_IN;
+        const t_nom_mm = t_in;
+        // Calculate Effective Thickness
+        // t_eff = t_nom * (1 - Tol%) - CA
+        const t_eff_mm = t_nom_mm * (1 - (Tol_val / 100)) - CA_val;
+
+        if (t_eff_mm <= 0) {
+          resultDiv.innerHTML = `<span style="color:var(--error-color)">Effective thickness is zero or negative after deductions! Check CA and Tolerance.</span>`;
+          resultDiv.style.display = 'block';
+          return;
+        }
+
+        const t_eff_in = t_eff_mm * MM_TO_IN;
         calculatedValueType = 'Max Design Pressure (kg/cm²)';
+
         DESIGN_FACTORS.forEach(f => {
-          const P_calc_psi = (2 * S_psi * f * E_val * T_val * t_in_unit) / D_val;
+          const P_calc_psi = (2 * S_psi * f * E_val * T_val * t_eff_in) / D_val;
           barChartData.push(P_calc_psi / KGCM2_TO_PSI);
         });
+
         const selectedIndex = DESIGN_FACTORS.indexOf(F_selected);
-        resultText = `Max Pressure for ${mapFtoClass(F_selected)} (F=${F_selected}): <strong>${barChartData[selectedIndex].toFixed(2)} kg/cm²</strong>`;
+
+        resultText = `
+            <strong>Results for ${mapFtoClass(F_selected)} (F=${F_selected}):</strong><br/>
+            Nominal Wall Thickness: ${t_nom_mm.toFixed(2)} mm<br/>
+            Effective Thickness (after CA & Tol): ${t_eff_mm.toFixed(3)} mm<br/>
+            Max Design Pressure: <strong>${barChartData[selectedIndex].toFixed(2)} kg/cm²</strong>
+        `;
       }
       resultDiv.innerHTML = resultText; resultDiv.style.display = 'block';
       barChartContainer.style.display = 'block';
       updateBarChart(barChartLabels, barChartData, calculatedValueType);
 
-      // Now, also generate the line chart using the main D and S values
-      // The E and T values from the main form will also be used by generatePressureThicknessChart
+      // Update Result Table
+      const tableDiv = document.getElementById("resultTable");
+      let tableHTML = `
+        <h3 style="margin-bottom:10px; color:var(--text-muted-color); font-size:1.1em;">Detailed Comparison</h3>
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Location Class</th>
+              <th>Design Factor (F)</th>
+              <th>${calculatedValueType}</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      DESIGN_FACTORS.forEach((f, index) => {
+        const val = barChartData[index].toFixed(3);
+        const isSelected = (f === F_selected);
+        const rowStyle = isSelected ? 'style="background-color: var(--success-bg-color); font-weight:bold;"' : '';
+        tableHTML += `<tr ${rowStyle}>
+            <td>${mapFtoClass(f)}</td>
+            <td>${f}</td>
+            <td>${val}</td>
+         </tr>`;
+      });
+
+      tableHTML += `</tbody></table>`;
+      tableDiv.innerHTML = tableHTML;
+      tableDiv.style.display = 'block';
+
       if (!isNaN(D_val) && D_val > 0 && !isNaN(S_val) && S_val > 0) {
-         generatePressureThicknessChart(D_val, S_val); // Pass D and S
+        generatePressureThicknessChart(D_val, S_val);
       } else {
-          lineChartErrorDiv.innerHTML = "<ul><li>Valid Diameter (D) and SMYS (S) from main section are needed for Pressure vs. Thickness chart.</li></ul>";
-          lineChartErrorDiv.style.display = 'block';
-          lineChartContainer.style.display = 'none'; // Hide if error
+        lineChartErrorDiv.innerHTML = "<ul><li>Valid Diameter (D) and SMYS (S) from main section are needed for Pressure vs. Thickness chart.</li></ul>";
+        lineChartErrorDiv.style.display = 'block';
+        lineChartContainer.style.display = 'none';
       }
     }
 
@@ -491,15 +938,15 @@
         labels: labels,
         datasets: [{
           label: dataLabel, data: values,
-          backgroundColor: ['rgba(52,152,219,0.7)','rgba(46,204,113,0.7)','rgba(241,196,15,0.7)','rgba(231,76,60,0.7)'],
-          borderColor: ['rgb(52,152,219)','rgb(46,204,113)','rgb(241,196,15)','rgb(231,76,60)'],
+          backgroundColor: ['rgba(52,152,219,0.7)', 'rgba(46,204,113,0.7)', 'rgba(241,196,15,0.7)', 'rgba(231,76,60,0.7)'],
+          borderColor: ['rgb(52,152,219)', 'rgb(46,204,113)', 'rgb(241,196,15)', 'rgb(231,76,60)'],
           borderWidth: 1, borderRadius: 5, barThickness: 'flex', maxBarThickness: 50
         }]
       };
       const config = {
         type: 'bar', data: data, plugins: [ChartDataLabels],
         options: {
-          animation: false, // Disable animation for faster PDF capture if needed
+          animation: false,
           indexAxis: 'y', responsive: true, maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
@@ -519,272 +966,328 @@
       barChart = new Chart(ctx, config);
     }
 
-    // Modified to accept D_analysis and S_analysis as parameters
     function generatePressureThicknessChart(D_analysis, S_analysis) {
-        const E_main = parseFloat(document.getElementById("E").value);
-        const T_main = parseFloat(document.getElementById("T").value);
+      const E_main = parseFloat(document.getElementById("E").value);
+      const T_main = parseFloat(document.getElementById("T").value);
 
-        const lineChartContainer = document.getElementById("lineChartContainer");
-        const lineChartErrorDiv = document.getElementById("lineChartError"); // Re-get in case it was cleared
-        lineChartContainer.style.display = 'none'; // Hide initially
-        lineChartErrorDiv.style.display = 'none'; lineChartErrorDiv.innerHTML = "";
+      const lineChartContainer = document.getElementById("lineChartContainer");
+      const lineChartErrorDiv = document.getElementById("lineChartError");
+      lineChartContainer.style.display = 'none';
+      lineChartErrorDiv.style.display = 'none'; lineChartErrorDiv.innerHTML = "";
 
+      const S_psi = S_analysis; // Input is now in PSI
+      const maxThicknessMm = 40; const thicknessStepMm = 0.5;
+      const thicknessPoints_mm = [];
+      for (let t = 0.5; t <= maxThicknessMm; t += thicknessStepMm) thicknessPoints_mm.push(t);
 
-        // Validation for E and T is already done in calculate(), D and S are passed
-        // We assume E_main and T_main are valid if this function is called after main calc success
-        // D_analysis and S_analysis are also assumed valid from main calc
+      const datasets = [];
+      const lineColors = ['#3498db', '#2ecc71', '#f1c40f', '#e74c3c'];
+      const maxPressureKgCm2 = 150;
 
-        const S_psi = S_analysis * KSI_TO_PSI;
-        const maxThicknessMm = 40; const thicknessStepMm = 0.5;
-        const thicknessPoints_mm = [];
-        for (let t = 0.5; t <= maxThicknessMm; t += thicknessStepMm) thicknessPoints_mm.push(t);
-
-        const datasets = [];
-        const lineColors = ['#3498db', '#2ecc71', '#f1c40f', '#e74c3c'];
-        const maxPressureKgCm2 = 150;
-
-        DESIGN_FACTORS.forEach((f, index) => {
-            const pressureData = []; let reachedMaxPressure = false;
-            thicknessPoints_mm.forEach(t_mm => {
-                if (reachedMaxPressure) return;
-                const t_in = t_mm * MM_TO_IN;
-                let P_calc_psi = (2 * S_psi * f * E_main * T_main * t_in) / D_analysis;
-                let P_calc_kgcm2 = P_calc_psi / KGCM2_TO_PSI;
-                if (P_calc_kgcm2 >= maxPressureKgCm2) {
-                    P_calc_kgcm2 = maxPressureKgCm2;
-                    pressureData.push({ x: t_mm, y: P_calc_kgcm2 });
-                    reachedMaxPressure = true;
-                } else if (P_calc_kgcm2 >= 0) {
-                    pressureData.push({ x: t_mm, y: P_calc_kgcm2 });
-                }
-            });
-            datasets.push({
-                label: mapFtoClass(f), data: pressureData, borderColor: lineColors[index % lineColors.length],
-                fill: false, tension: 0.1, pointRadius: 0, pointHoverRadius: 5, borderWidth: 2.5
-            });
+      DESIGN_FACTORS.forEach((f, index) => {
+        const pressureData = []; let reachedMaxPressure = false;
+        thicknessPoints_mm.forEach(t_mm => {
+          if (reachedMaxPressure) return;
+          const t_in = t_mm * MM_TO_IN;
+          let P_calc_psi = (2 * S_psi * f * E_main * T_main * t_in) / D_analysis;
+          let P_calc_kgcm2 = P_calc_psi / KGCM2_TO_PSI;
+          if (P_calc_kgcm2 >= maxPressureKgCm2) {
+            P_calc_kgcm2 = maxPressureKgCm2;
+            pressureData.push({ x: t_mm, y: P_calc_kgcm2 });
+            reachedMaxPressure = true;
+          } else if (P_calc_kgcm2 >= 0) {
+            pressureData.push({ x: t_mm, y: P_calc_kgcm2 });
+          }
         });
+        datasets.push({
+          label: mapFtoClass(f), data: pressureData, borderColor: lineColors[index % lineColors.length],
+          fill: false, tension: 0.1, pointRadius: 0, pointHoverRadius: 5, borderWidth: 2.5
+        });
+      });
 
-        const ctx = document.getElementById('pressureThicknessChart').getContext('2d');
-        const labelColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-label-color').trim();
-        const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color').trim();
-        const config = {
-            type: 'line', data: { datasets: datasets },
-            options: {
-                animation: false, // Disable animation for faster PDF capture if needed
-                responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    title: { display: true, text: `Pressure vs. Thickness (D=${D_analysis}", S=${S_analysis}ksi, E=${E_main}, T=${T_main})`, color: labelColor, font: { size: 14 } },
-                    legend: { position: 'top', labels: { color: labelColor } },
-                    tooltip: {
-                        callbacks: {
-                           title: (items) => (items.length > 0 ? `Thickness: ${items[0].parsed.x.toFixed(1)} mm` : ''),
-                           label: (ctx) => `${ctx.dataset.label || ''}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(2) + ' kg/cm²' : ''}`
-                        }
-                    },
-                    datalabels: { display: false }
-                },
-                scales: {
-                    x: { type: 'linear', title: { display: true, text: 'Wall Thickness (mm)', color: labelColor }, grid: { color: gridColor }, ticks: { color: labelColor }, min: 0, max: maxThicknessMm },
-                    y: { title: { display: true, text: 'Design Pressure (kg/cm²)', color: labelColor }, grid: { color: gridColor }, ticks: { color: labelColor }, min: 0, max: maxPressureKgCm2 }
-                }
-            }
-        };
-        if (lineChart) lineChart.destroy();
-        lineChart = new Chart(ctx, config);
-        lineChartContainer.style.display = 'block'; // Show the container
+      const ctx = document.getElementById('pressureThicknessChart').getContext('2d');
+      const labelColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-label-color').trim();
+      const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color').trim();
+      const config = {
+        type: 'line', data: { datasets: datasets },
+        options: {
+          animation: false,
+          responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          plugins: {
+            title: { display: true, text: `Pressure vs. Thickness (D=${D_analysis}", S=${S_analysis}psi, E=${E_main}, T=${T_main})`, color: labelColor, font: { size: 14 } },
+            legend: { position: 'top', labels: { color: labelColor } },
+            tooltip: {
+              callbacks: {
+                title: (items) => (items.length > 0 ? `Thickness: ${items[0].parsed.x.toFixed(1)} mm` : ''),
+                label: (ctx) => `${ctx.dataset.label || ''}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(2) + ' kg/cm²' : ''}`
+              }
+            },
+            datalabels: { display: false }
+          },
+          scales: {
+            x: { type: 'linear', title: { display: true, text: 'Wall Thickness (mm)', color: labelColor }, grid: { color: gridColor }, ticks: { color: labelColor }, min: 0, max: maxThicknessMm },
+            y: { title: { display: true, text: 'Design Pressure (kg/cm²)', color: labelColor }, grid: { color: gridColor }, ticks: { color: labelColor }, min: 0, max: maxPressureKgCm2 }
+          }
+        }
+      };
+      if (lineChart) lineChart.destroy();
+      lineChart = new Chart(ctx, config);
+      lineChartContainer.style.display = 'block';
     }
 
     function resetForm() {
       document.getElementById('calcForm').reset();
       document.getElementById('P').value = '';
       document.getElementById('t').value = '';
+      document.getElementById('CA').value = '0';
+      document.getElementById('Tol').value = '0';
       document.getElementById('D').value = '';
-      document.getElementById('S').value = '60';
-      // No analysis inputs to reset
+      document.getElementById('S').value = '35500';
       document.getElementById('F').value = '0.72';
       document.getElementById('E').value = '1.0';
       document.getElementById('T').value = '1.0';
+      document.getElementById('sel-nps').value = '';
+      document.getElementById('sel-std-wt').innerHTML = '<option value="" disabled selected>Select NPS First</option>';
 
-      ['result', 'error-message', 'lineChartError', 'barChartContainer', 'lineChartContainer'].forEach(id => {
-          const el = document.getElementById(id);
-          el.style.display = 'none';
-          if (id.includes('ChartError') || id === 'result' || id === 'error-message') el.innerHTML = '';
+      ['result', 'resultTable', 'error-message', 'lineChartError', 'barChartContainer', 'lineChartContainer'].forEach(id => {
+        const el = document.getElementById(id);
+        el.style.display = 'none';
+        if (id.includes('ChartError') || id === 'result' || id === 'error-message') el.innerHTML = '';
       });
 
       if (barChart) { barChart.destroy(); barChart = null; }
       if (lineChart) { lineChart.destroy(); lineChart = null; }
     }
 
-    async function exportToPDF() {
-        const doc = new jsPDF({ unit: 'pt', format: 'a4' }); // Using points for better control with images
-        let yPos = 40; // Initial Y position for text (in points)
-        const lineSpacing = 18; // Spacing between lines (in points)
-        const sectionSpacing = 25; // Spacing between sections (in points)
-        const leftMargin = 40;
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const contentWidth = pageWidth - leftMargin * 2;
-        const valueOffset = 180; // Horizontal offset for values to align them
-
-        function checkNewPage(heightNeeded) {
-            if (yPos + heightNeeded > pageHeight - 40) { // 40 for bottom margin
-                doc.addPage();
-                yPos = 40; // Reset yPos for new page
-            }
-        }
-
-        doc.setFontSize(18);
-        doc.setFont("helvetica", "bold");
-        doc.text("Pipeline Design Calculation Report", pageWidth / 2, yPos, { align: 'center' });
-        yPos += sectionSpacing * 1.5;
-
-        checkNewPage(sectionSpacing * 1.5);
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text("Input Parameters", leftMargin, yPos);
-        yPos += lineSpacing * 1.5;
-
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-
-        const inputs = [
-            { label: "Outside Diameter (D):", value: `${document.getElementById("D").value || 'N/A'} in` },
-            { label: "Wall Thickness (t):", value: `${document.getElementById("t").value || 'N/A'} mm` },
-            { label: "Internal Design Pressure (P):", value: `${document.getElementById("P").value || 'N/A'} kg/cm²` },
-            { label: "SMYS (S):", value: `${document.getElementById("S").value || 'N/A'} ksi` },
-            { label: "Location Class Design Factor (F):", value: document.getElementById("F").options[document.getElementById("F").selectedIndex].text || 'N/A' },
-            { label: "Longitudinal Joint Factor (E):", value: `${document.getElementById("E").options[document.getElementById("E").selectedIndex].text || 'N/A'} (${document.getElementById("E").value})` },
-            { label: "Temperature Derating Factor (T):", value: `${document.getElementById("T").value || 'N/A'}` }
-        ];
-
-        inputs.forEach(input => {
-            checkNewPage(lineSpacing);
-            doc.setFont("helvetica", "bold");
-            doc.text(input.label, leftMargin, yPos);
-            doc.setFont("helvetica", "normal");
-            doc.text(input.value, leftMargin + valueOffset, yPos);
-            yPos += lineSpacing;
-        });
-
-        checkNewPage(sectionSpacing);
-        yPos += sectionSpacing - lineSpacing;
-
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text("Result", leftMargin, yPos);
-        yPos += lineSpacing * 1.5;
-
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        const resultText = document.getElementById("result").innerText;
-        const errorContentHTML = document.getElementById("error-message").innerHTML;
-        const errorDivVisible = document.getElementById("error-message").style.display !== 'none';
-        const resultDivVisible = document.getElementById("result").style.display !== 'none';
-
-        if (errorDivVisible && errorContentHTML) {
-            checkNewPage(lineSpacing * 2); // Approx height for error title + one line
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(231, 76, 60);
-            doc.text("Input Error(s):", leftMargin, yPos);
-            yPos += lineSpacing;
-            doc.setTextColor(0, 0, 0);
-            doc.setFont("helvetica", "normal");
-            const errorItems = errorContentHTML.replace(/<\/?ul>/gi, '').split(/<li>/gi).filter(item => item.trim() !== '');
-            errorItems.forEach(item => {
-                const cleanedItem = item.replace(/<\/li>/gi, '').replace(/<[^>]+>/g, '').trim();
-                const wrappedItem = doc.splitTextToSize(`- ${cleanedItem}`, contentWidth - 10); // 10 for bullet indent
-                checkNewPage(wrappedItem.length * (lineSpacing * 0.8));
-                doc.text(wrappedItem, leftMargin + 10, yPos);
-                yPos += wrappedItem.length * (lineSpacing * 0.8);
-            });
-        } else if (resultDivVisible && resultText) {
-            doc.setFont("helvetica", "bold");
-            const wrappedResult = doc.splitTextToSize(resultText, contentWidth);
-            checkNewPage(wrappedResult.length * (lineSpacing * 0.8));
-            doc.text(wrappedResult, leftMargin, yPos);
-            yPos += wrappedResult.length * (lineSpacing * 0.8);
-        } else {
-            checkNewPage(lineSpacing);
-            doc.text("No calculation performed or result available for the given inputs.", leftMargin, yPos);
-            yPos += lineSpacing;
-        }
-        doc.setTextColor(0,0,0);
-        yPos += sectionSpacing; // Space before charts
-
-        // Add Charts
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-
-        const barChartEl = document.getElementById('barChart');
-        const lineChartEl = document.getElementById('pressureThicknessChart');
-
-        if (barChartEl && document.getElementById('barChartContainer').style.display !== 'none') {
-            checkNewPage(sectionSpacing + 200); // Approx height for chart title + chart image
-            doc.text("Bar Chart: Value vs Location Class", leftMargin, yPos);
-            yPos += lineSpacing * 1.5;
-            try {
-                const barCanvas = await html2canvas(barChartEl, { scale: 2, backgroundColor: null }); // Higher scale for better quality
-                const barImgData = barCanvas.toDataURL('image/png');
-                const imgPropsBar = doc.getImageProperties(barImgData);
-                const imgHeightBar = (imgPropsBar.height * contentWidth) / imgPropsBar.width;
-                checkNewPage(imgHeightBar + lineSpacing);
-                doc.addImage(barImgData, 'PNG', leftMargin, yPos, contentWidth, imgHeightBar);
-                yPos += imgHeightBar + sectionSpacing;
-            } catch (e) {
-                console.error("Error capturing bar chart:", e);
-                checkNewPage(lineSpacing);
-                doc.setFont("helvetica", "italic").setTextColor(150,150,150);
-                doc.text("Bar chart could not be rendered in PDF.", leftMargin, yPos);
-                yPos += lineSpacing;
-                doc.setTextColor(0,0,0);
-            }
-        }
-
-        if (lineChartEl && document.getElementById('lineChartContainer').style.display !== 'none') {
-            checkNewPage(sectionSpacing + 200);
-            doc.setFont("helvetica", "bold");
-            doc.text("Line Chart: Pressure vs Thickness", leftMargin, yPos);
-            yPos += lineSpacing * 1.5;
-            try {
-                const lineCanvas = await html2canvas(lineChartEl, { scale: 2, backgroundColor: null });
-                const lineImgData = lineCanvas.toDataURL('image/png');
-                const imgPropsLine = doc.getImageProperties(lineImgData);
-                const imgHeightLine = (imgPropsLine.height * contentWidth) / imgPropsLine.width;
-                checkNewPage(imgHeightLine + lineSpacing);
-                doc.addImage(lineImgData, 'PNG', leftMargin, yPos, contentWidth, imgHeightLine);
-                yPos += imgHeightLine + sectionSpacing;
-            } catch (e) {
-                console.error("Error capturing line chart:", e);
-                checkNewPage(lineSpacing);
-                doc.setFont("helvetica", "italic").setTextColor(150,150,150);
-                doc.text("Line chart could not be rendered in PDF.", leftMargin, yPos);
-                yPos += lineSpacing;
-                 doc.setTextColor(0,0,0);
-            }
-        }
-
-        // Footer on the last page
-        const finalPageCount = doc.internal.getNumberOfPages();
-        doc.setPage(finalPageCount); // Go to last page
-        yPos = pageHeight - 30;
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "italic");
-        doc.text(`Report generated on: ${new Date().toLocaleString()}`, leftMargin, yPos);
-        doc.text(`Page ${finalPageCount}`, pageWidth - leftMargin - 20, yPos);
-
-
-        doc.save('Pipeline_Design_Report.pdf');
+    function saveScenario() {
+      const data = {
+        nps: document.getElementById('sel-nps').value,
+        stdWt: document.getElementById('sel-std-wt').value,
+        D: document.getElementById('D').value,
+        t: document.getElementById('t').value,
+        P: document.getElementById('P').value,
+        grade: document.getElementById('sel-grade').value,
+        S: document.getElementById('S').value,
+        F: document.getElementById('F').value,
+        E: document.getElementById('E').value,
+        T: document.getElementById('T').value,
+        CA: document.getElementById('CA').value,
+        Tol: document.getElementById('Tol').value
+      };
+      localStorage.setItem('pipelineDesignScenario', JSON.stringify(data));
+      alert('Scenario Saved!');
     }
 
+    function loadScenario() {
+      const saved = localStorage.getItem('pipelineDesignScenario');
+      if (!saved) { alert('No saved scenario found.'); return; }
+
+      const data = JSON.parse(saved);
+
+      // Set simple fields
+      document.getElementById('D').value = data.D || '';
+      document.getElementById('t').value = data.t || '';
+      document.getElementById('P').value = data.P || '';
+      document.getElementById('S').value = data.S || '35500';
+      document.getElementById('F').value = data.F || '0.72';
+      document.getElementById('E').value = data.E || '1.0';
+      document.getElementById('T').value = data.T || '1.0';
+      document.getElementById('CA').value = data.CA || '0';
+      document.getElementById('Tol').value = data.Tol || '0';
+      document.getElementById('sel-grade').value = data.grade || '';
+
+      // Handle Dependencies (NPS -> Std Wt)
+      if (data.nps) {
+        document.getElementById('sel-nps').value = data.nps;
+        // Trigger population logic manually
+        const npsVal = data.nps;
+        if (NPS_DATA[npsVal]) {
+          populateStdWt(npsVal); // Need to make sure this function is available/working
+          // We don't want to clear t/P if we are loading, so avoid calling full handleNpsChange which clears inputs
+          if (!data.D) document.getElementById('D').value = NPS_DATA[npsVal].odIn;
+        }
+
+        if (data.stdWt) {
+          document.getElementById('sel-std-wt').value = data.stdWt;
+        }
+      }
+
+      // Recalculate if possible
+      if ((data.P || data.t) && data.D && data.S) {
+        calculate();
+      }
+    }
+
+    async function exportToPDF() {
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      let yPos = 40;
+      const lineSpacing = 18;
+      const sectionSpacing = 25;
+      const leftMargin = 40;
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const contentWidth = pageWidth - leftMargin * 2;
+      const valueOffset = 180;
+
+      function checkNewPage(heightNeeded) {
+        if (yPos + heightNeeded > pageHeight - 40) {
+          doc.addPage();
+          yPos = 40;
+        }
+      }
+
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("Pipeline Design Calculation Report", pageWidth / 2, yPos, { align: 'center' });
+      yPos += sectionSpacing * 1.5;
+
+      checkNewPage(sectionSpacing * 1.5);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Input Parameters", leftMargin, yPos);
+      yPos += lineSpacing * 1.5;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+
+      const inputs = [
+        { label: "Outside Diameter (D):", value: `${document.getElementById("D").value || 'N/A'} in` },
+        { label: "Wall Thickness (t):", value: `${document.getElementById("t").value || 'N/A'} mm` },
+        { label: "Internal Design Pressure (P):", value: `${document.getElementById("P").value || 'N/A'} kg/cm²` },
+        { label: "SMYS (S):", value: `${document.getElementById("S").value || 'N/A'} psi` },
+        { label: "Location Class Design Factor (F):", value: document.getElementById("F").options[document.getElementById("F").selectedIndex].text || 'N/A' },
+        { label: "Longitudinal Joint Factor (E):", value: `${document.getElementById("E").options[document.getElementById("E").selectedIndex].text || 'N/A'} (${document.getElementById("E").value})` },
+        { label: "Temperature Derating Factor (T):", value: `${document.getElementById("T").value || 'N/A'}` }
+      ];
+
+      inputs.forEach(input => {
+        checkNewPage(lineSpacing);
+        doc.setFont("helvetica", "bold");
+        doc.text(input.label, leftMargin, yPos);
+        doc.setFont("helvetica", "normal");
+        doc.text(input.value, leftMargin + valueOffset, yPos);
+        yPos += lineSpacing;
+      });
+
+      checkNewPage(sectionSpacing);
+      yPos += sectionSpacing - lineSpacing;
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Result", leftMargin, yPos);
+      yPos += lineSpacing * 1.5;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      const resultText = document.getElementById("result").innerText;
+      const errorContentHTML = document.getElementById("error-message").innerHTML;
+      const errorDivVisible = document.getElementById("error-message").style.display !== 'none';
+      const resultDivVisible = document.getElementById("result").style.display !== 'none';
+
+      if (errorDivVisible && errorContentHTML) {
+        checkNewPage(lineSpacing * 2);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(231, 76, 60);
+        doc.text("Input Error(s):", leftMargin, yPos);
+        yPos += lineSpacing;
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        const errorItems = errorContentHTML.replace(/<\/?ul>/gi, '').split(/<li>/gi).filter(item => item.trim() !== '');
+        errorItems.forEach(item => {
+          const cleanedItem = item.replace(/<\/li>/gi, '').replace(/<[^>]+>/g, '').trim();
+          const wrappedItem = doc.splitTextToSize(`- ${cleanedItem}`, contentWidth - 10);
+          checkNewPage(wrappedItem.length * (lineSpacing * 0.8));
+          doc.text(wrappedItem, leftMargin + 10, yPos);
+          yPos += wrappedItem.length * (lineSpacing * 0.8);
+        });
+      } else if (resultDivVisible && resultText) {
+        doc.setFont("helvetica", "bold");
+        const wrappedResult = doc.splitTextToSize(resultText, contentWidth);
+        checkNewPage(wrappedResult.length * (lineSpacing * 0.8));
+        doc.text(wrappedResult, leftMargin, yPos);
+        yPos += wrappedResult.length * (lineSpacing * 0.8);
+      } else {
+        checkNewPage(lineSpacing);
+        doc.text("No calculation performed or result available for the given inputs.", leftMargin, yPos);
+        yPos += lineSpacing;
+      }
+      doc.setTextColor(0, 0, 0);
+      yPos += sectionSpacing;
+
+      // Add Charts
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+
+      const barChartEl = document.getElementById('barChart');
+      const lineChartEl = document.getElementById('pressureThicknessChart');
+
+      if (barChartEl && document.getElementById('barChartContainer').style.display !== 'none') {
+        checkNewPage(sectionSpacing + 200);
+        doc.text("Bar Chart: Value vs Location Class", leftMargin, yPos);
+        yPos += lineSpacing * 1.5;
+        try {
+          const barCanvas = await html2canvas(barChartEl, { scale: 2, backgroundColor: null });
+          const barImgData = barCanvas.toDataURL('image/png');
+          const imgPropsBar = doc.getImageProperties(barImgData);
+          const imgHeightBar = (imgPropsBar.height * contentWidth) / imgPropsBar.width;
+          checkNewPage(imgHeightBar + lineSpacing);
+          doc.addImage(barImgData, 'PNG', leftMargin, yPos, contentWidth, imgHeightBar);
+          yPos += imgHeightBar + sectionSpacing;
+        } catch (e) {
+          console.error("Error capturing bar chart:", e);
+          checkNewPage(lineSpacing);
+          doc.setFont("helvetica", "italic").setTextColor(150, 150, 150);
+          doc.text("Bar chart could not be rendered in PDF.", leftMargin, yPos);
+          yPos += lineSpacing;
+          doc.setTextColor(0, 0, 0);
+        }
+      }
+
+      if (lineChartEl && document.getElementById('lineChartContainer').style.display !== 'none') {
+        checkNewPage(sectionSpacing + 200);
+        doc.setFont("helvetica", "bold");
+        doc.text("Line Chart: Pressure vs Thickness", leftMargin, yPos);
+        yPos += lineSpacing * 1.5;
+        try {
+          const lineCanvas = await html2canvas(lineChartEl, { scale: 2, backgroundColor: null });
+          const lineImgData = lineCanvas.toDataURL('image/png');
+          const imgPropsLine = doc.getImageProperties(lineImgData);
+          const imgHeightLine = (imgPropsLine.height * contentWidth) / imgPropsLine.width;
+          checkNewPage(imgHeightLine + lineSpacing);
+          doc.addImage(lineImgData, 'PNG', leftMargin, yPos, contentWidth, imgHeightLine);
+          yPos += imgHeightLine + sectionSpacing;
+        } catch (e) {
+          console.error("Error capturing line chart:", e);
+          checkNewPage(lineSpacing);
+          doc.setFont("helvetica", "italic").setTextColor(150, 150, 150);
+          doc.text("Line chart could not be rendered in PDF.", leftMargin, yPos);
+          yPos += lineSpacing;
+          doc.setTextColor(0, 0, 0);
+        }
+      }
+
+      const finalPageCount = doc.internal.getNumberOfPages();
+      doc.setPage(finalPageCount);
+      yPos = pageHeight - 30;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.text(`Report generated on: ${new Date().toLocaleString()}`, leftMargin, yPos);
+      doc.text(`Page ${finalPageCount}`, pageWidth - leftMargin - 20, yPos);
+
+
+      doc.save('Pipeline_Design_Report.pdf');
+    }
 
     function initialize() {
-        Chart.register(ChartDataLabels);
-        document.documentElement.setAttribute('data-theme', 'light');
-        updateChartThemes();
+      Chart.register(ChartDataLabels);
+      document.documentElement.setAttribute('data-theme', 'light');
+      updateChartThemes();
+      initNps();
     }
 
     document.addEventListener('DOMContentLoaded', initialize);
 
   </script>
 </body>
+
 </html>
