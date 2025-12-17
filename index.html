@@ -190,10 +190,6 @@
             <p>ASME B31.8 / API 5L</p>
         </div>
         <div class="controls-right">
-            <button class="btn-icon" onclick="copyShareLink()" title="Copy Link with Current Inputs">
-                <i class="fas fa-share-alt"></i>
-            </button>
-
             <button class="btn-icon" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
                 <i class="fas fa-sun"></i>
             </button>
@@ -202,6 +198,7 @@
                 <button class="btn-icon" onclick="toggleMenu()"><i class="fas fa-ellipsis-v"></i></button>
                 <div class="menu-dropdown" id="main-menu">
                     <div class="menu-item" onclick="handleMenuAction('scenario')"><i class="fas fa-folder-open"></i> Scenarios</div>
+                    <div class="menu-item" onclick="handleMenuAction('share')"><i class="fas fa-share-alt"></i> Share Link</div>
                     <div class="menu-item" onclick="handleMenuAction('report')"><i class="fas fa-print"></i> Print Report</div>
                 </div>
             </div>
@@ -209,7 +206,6 @@
     </div>
     
     <div id="validation-console" style="grid-column: 1/-1; display:none;"></div>
-
     <div class="col-inputs">
         
         <div class="card">
@@ -358,39 +354,6 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="section-header">Flow Capacity (Approx)</div>
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>Target Velocity</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="Vel" class="input-field calc-trigger" value="15">
-                        <div style="color:var(--text-muted); padding:0 10px; font-size:0.8rem; display:flex; align-items:center;">m/s</div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Compressibility (Z)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="Z_factor" class="input-field calc-trigger" value="0.9" step="0.05">
-                    </div>
-                </div>
-            </div>
-            
-            <div style="background:var(--bg-input); padding:10px; border-radius:6px; margin-top:10px; border:1px solid var(--border-color);">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="color:var(--text-muted); font-size:0.85rem;">Max Flow (MMSCMD):</span>
-                    <span id="res-flow-mmscmd" style="color:var(--highlight); font-weight:700; font-family:monospace;">0.00</span>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color:var(--text-muted); font-size:0.85rem;">Max Flow (MMSCFD):</span>
-                    <span id="res-flow-mmscfd" style="color:var(--text-main); font-weight:700; font-family:monospace;">0.00</span>
-                </div>
-            </div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:8px;">
-                *Estimates capacity at Design Pressure assuming standard conditions (1 atm, 15°C).
-            </div>
-        </div>
-
         <div class="card" id="card-table" style="display:none;">
             <div class="section-header">Location Class Comparison</div>
             <div style="overflow-x:auto;">
@@ -426,7 +389,6 @@
 
     </div>
 </div> 
-
 <div id="toast">Scenario Saved!</div>
 
 <div id="modal-scenarios" class="modal-overlay">
@@ -670,7 +632,7 @@
         const unit = lastUnits['sel-wt-unit'] || 'mm';
         document.getElementById('lbl-ca-unit').innerText = getDisplayUnit(unit);
         
-        // Remove query params from URL to clean up address bar (optional, keeps it clean)
+        // Remove query params from URL to clean up address bar
         window.history.replaceState({}, document.title, window.location.pathname);
         return true;
     }
@@ -904,7 +866,6 @@
         
         tableData.forEach(row => {
             const isSelected = (row.f === F);
-            // Updated style to use CSS variables for theme support
             const style = isSelected ? 'color:var(--success-text); font-weight:bold;' : 'color:var(--text-main);';
             const borderStyle = 'border-bottom:1px solid var(--border-color);';
             const tr = document.createElement('tr');
@@ -927,33 +888,6 @@
 
         updateBarChart(chartData, resultLabel, mainResultUnit);
         generatePressureThicknessChart(D_in, S_psi, E, T, u_t, u_P);
-
-        // --- FLOW CAPACITY CALCULATION ---
-        const vel_target = parseFloat(document.getElementById('Vel').value) || 15; 
-        const z_factor = parseFloat(document.getElementById('Z_factor').value) || 0.9;
-        let t_calc_in = 0;
-
-        if (isSolveForThickness) {
-            const P_psi_flow = converters.pressure.toBase(P_raw, u_P);
-            t_calc_in = (P_psi_flow * D_in) / (2 * S_psi * 0.72 * E * T); // Use Class 1
-        } else {
-            t_calc_in = converters.length.toBase(t_raw, u_t);
-        }
-
-        const ID_inch = D_in - (2 * t_calc_in);
-        const ID_m = ID_inch * 0.0254;
-
-        if (ID_m > 0) {
-            const Area_m2 = Math.PI * Math.pow((ID_m / 2), 2);
-            const Q_act_m3s = Area_m2 * vel_target;
-            const P_psi_abs = converters.pressure.toBase(P_raw, u_P) + 14.7;
-            const P_atm_abs = P_psi_abs / 14.7;
-            const Q_std_m3s = Q_act_m3s * P_atm_abs * (1 / z_factor);
-            const MMSCMD = (Q_std_m3s * 86400) / 1000000;
-            const MMSCFD = MMSCMD * 35.3147;
-            document.getElementById('res-flow-mmscmd').innerText = MMSCMD.toFixed(2);
-            document.getElementById('res-flow-mmscfd').innerText = MMSCFD.toFixed(2);
-        }
         
         prepareReport(D_raw + ' ' + getDisplayUnit(u_D), 
                       t_raw + ' ' + getDisplayUnit(u_t), 
@@ -1061,8 +995,14 @@
     function toggleMenu() { document.getElementById('main-menu').classList.toggle('show'); }
     function handleMenuAction(a) {
         document.getElementById('main-menu').classList.remove('show');
-        if(a === 'scenario') { document.getElementById('modal-scenarios').style.display = 'flex'; renderScenarioList(); }
-        else if (a === 'report') window.print();
+        if(a === 'scenario') { 
+            document.getElementById('modal-scenarios').style.display = 'flex'; 
+            renderScenarioList(); 
+        } else if (a === 'share') {
+            copyShareLink();
+        } else if (a === 'report') {
+            window.print();
+        }
     }
     function closeModal() { document.getElementById('modal-scenarios').style.display = 'none'; }
 
