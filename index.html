@@ -3,1090 +3,1225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pipeline Design Calculator</title>
+    <title>Pipeline Design Calculator | Pipelineer</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- THEME VARIABLES --- */
+        /* --- THEME VARIABLES (Glassmorphism System) --- */
         :root {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --bg-input: #0f172a;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --accent-color: #3b82f6;
-            --accent-hover: #2563eb;
-            --highlight: #60a5fa;
-            --success-bg: rgba(6, 78, 59, 0.2);
-            --success-border: rgba(6, 78, 59, 0.5);
+            color-scheme: dark; 
+
+            /* Dark Theme (Default) */
+            --bg-base: #070F15;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --input-border: rgba(255, 255, 255, 0.15);
+            --metric-bg: rgba(255, 255, 255, 0.02);
+            
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --accent-teal: #00A5A8; 
+            --accent-orange: #F37021;
+            
+            --success-bg: rgba(52, 211, 153, 0.15);
+            --success-border: rgba(52, 211, 153, 0.3);
             --success-text: #34d399;
-            --chart-grid: #334155;
-            --shadow: rgba(0,0,0,0.3);
+
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --danger-border: rgba(239, 68, 68, 0.3);
+            --danger-text: #f87171;
+            
+            --warn-bg: rgba(245, 158, 11, 0.15);
+            --warn-border: rgba(245, 158, 11, 0.3);
+            --warn-text: #fbbf24;
+            
+            --glow-1: rgba(0, 165, 168, 0.2);
+            --glow-2: rgba(243, 112, 33, 0.15);
+            --grad-base: #FFFFFF;
+            --footer-bg: rgba(7, 15, 21, 0.8);
         }
 
         [data-theme="light"] {
-            --bg-body: #f8fafc;
-            --bg-card: #ffffff;
-            --bg-input: #f1f5f9;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #cbd5e1;
-            --accent-color: #2563eb;
-            --accent-hover: #1d4ed8;
-            --highlight: #2563eb;
-            --success-bg: #dcfce7;
-            --success-border: #86efac;
-            --success-text: #15803d;
-            --chart-grid: #e2e8f0;
-            --shadow: rgba(0,0,0,0.1);
+            color-scheme: light; 
+
+            /* Light Theme */
+            --bg-base: #F8FAFC;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(255, 255, 255, 0.8);
+            --input-border: rgba(0, 0, 0, 0.15);
+            --metric-bg: rgba(255, 255, 255, 0.5);
+            
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --accent-teal: #008082; 
+            --accent-orange: #E05D0F; 
+            
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --success-text: #059669;
+
+            --danger-bg: #fee2e2;
+            --danger-border: #fca5a5;
+            --danger-text: #dc2626;
+
+            --warn-bg: #fffbeb;
+            --warn-border: #fde68a;
+            --warn-text: #d97706;
+
+            --glow-1: rgba(0, 165, 168, 0.15);
+            --glow-2: rgba(243, 112, 33, 0.1);
+            --grad-base: #0F172A;
+            --footer-bg: rgba(248, 250, 252, 0.8);
         }
 
-        /* --- RESET & BASE --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* --- GLOBAL RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        html, body { max-width: 100%; overflow-x: hidden; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            padding: 20px; line-height: 1.5;
-            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* --- LAYOUT --- */
+        /* --- AMBIENT GLOWS --- */
+        .ambient-glow {
+            position: absolute; border-radius: 50%; filter: blur(120px);
+            z-index: -1; pointer-events: none; transition: background 0.5s ease;
+        }
+        .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--glow-1) 0%, transparent 70%); }
+        .glow-2 { bottom: 0; right: -10%; width: 40vw; height: 40vw; background: radial-gradient(circle, var(--glow-2) 0%, transparent 70%); }
+
+        /* --- LAYOUT & HEADER --- */
         .container {
             width: 100%; max-width: 1200px; margin: 0 auto;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            padding: 2.5rem 2rem 6rem 2rem; position: relative; z-index: 1; flex-grow: 1;
         }
-        .col-inputs, .col-results { display: flex; flex-direction: column; gap: 15px; }
-
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
-
-        /* --- HEADER & MENU --- */
-        .header-bar {
-            grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 10px;
+        header { margin-bottom: 2rem; text-align: center; }
+        header h1 {
+            font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.8rem; line-height: 1.3;
+            background: linear-gradient(to right, var(--grad-base) 20%, var(--accent-teal) 50%, var(--accent-orange) 80%, var(--grad-base) 100%);
+            background-size: 400% auto; color: transparent; background-clip: text; -webkit-background-clip: text;
+            animation: textSweep 12s linear infinite; text-shadow: 0 10px 30px rgba(0, 165, 168, 0.1);
         }
-        .header-title h1 { font-size: 1.25rem; color: var(--text-main); font-weight: 700; }
-        .header-title p { font-size: 0.85rem; color: var(--text-muted); }
+        @keyframes textSweep { to { background-position: 400% center; } }
+        .tagline { color: var(--text-secondary); font-size: 1.1rem; font-weight: 400; }
 
-        .controls-right { display: flex; gap: 10px; align-items: center; }
-
-        .btn-icon {
-            background: transparent; border: 1px solid transparent; color: var(--text-muted);
-            font-size: 1.2rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+        /* --- THEME TOGGLE & MENU --- */
+        .header-controls {
+            position: absolute;
+            top: 2.5rem; right: 2rem;
+            display: flex; gap: 1rem;
+            z-index: 100;
         }
-        .btn-icon:hover { background: var(--bg-card); color: var(--text-main); border-color: var(--border-color); }
+
+        .icon-btn {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s ease; outline: none; font-size: 1.1rem;
+        }
+        .icon-btn:hover { transform: scale(1.1); border-color: var(--accent-teal); color: var(--accent-teal); }
+        .sun-icon { opacity: 0; transform: rotate(-90deg) scale(0.5); position: absolute; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; height: 20px;}
+        .moon-icon { opacity: 1; transform: rotate(0) scale(1); position: absolute; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; height: 20px;}
+        [data-theme="light"] .sun-icon { opacity: 1; transform: rotate(0) scale(1); }
+        [data-theme="light"] .moon-icon { opacity: 0; transform: rotate(90deg) scale(0.5); }
 
         .menu-container { position: relative; }
         .menu-dropdown {
-            display: none; position: absolute; right: 0; top: 50px; background: var(--bg-card);
-            border: 1px solid var(--border-color); border-radius: 8px; width: 180px; z-index: 50;
-            box-shadow: 0 10px 15px -3px var(--shadow);
+            display: none; position: absolute; right: 0; top: 55px;
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 12px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+            width: 220px; z-index: 50; overflow: hidden;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
         .menu-dropdown.show { display: block; }
         .menu-item {
-            padding: 12px 16px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 10px;
-            font-size: 0.9rem; border-bottom: 1px solid var(--border-color);
+            padding: 12px 16px; color: var(--text-primary); cursor: pointer;
+            display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+            border-bottom: 1px solid var(--card-border); transition: all 0.2s;
         }
-        .menu-item:hover { background: var(--border-color); }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover { background: rgba(0, 165, 168, 0.1); color: var(--accent-teal); }
+        .menu-item i { width: 20px; text-align: center; color: var(--accent-teal); }
 
-        /* --- CARDS & INPUTS --- */
+        /* --- GRID & CARDS --- */
+        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; min-width: 0; }
+        .col-inputs, .col-results { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
+        
+        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; } }
+        
+        /* Mobile Spacing Optimizations */
+        @media (max-width: 768px) { 
+            .container { padding: 1rem 0.5rem 6rem 0.5rem; } 
+            .header-controls { top: 1rem; right: 0.5rem; }
+            header { margin-top: 3.5rem; margin-bottom: 1.5rem; }
+            header h1 { font-size: 2.2rem; } 
+        }
+        @media (max-width: 600px) {
+            .grid-2 { grid-template-columns: 1fr !important; }
+            .card { padding: 0.8rem 0.6rem; } 
+            .dash-card { padding: 0.8rem 0.6rem; }
+            .section-header { margin-bottom: 0.8rem; }
+            .layout-grid { gap: 1rem; }
+            .col-inputs, .col-results { gap: 1rem; }
+        }
+
         .card {
-            background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px;
-            padding: 15px; box-shadow: 0 4px 6px var(--shadow);
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); transition: all 0.4s ease;
         }
-        .section-header {
-            color: var(--highlight); font-size: 0.9rem; font-weight: 700; text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, var(--accent-teal), var(--accent-orange)); opacity: 0.7;
         }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .input-group { margin-bottom: 10px; }
-        .input-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+        .card:hover { border-color: rgba(0, 165, 168, 0.3); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15); }
+        [data-theme="dark"] .card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.15); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); }
 
+        .section-header {
+            font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--accent-teal); border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* --- VALIDATION --- */
+        #validation-console { grid-column: 1 / -1; display: none; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .msg-box { padding: 10px 15px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; font-weight: 600; backdrop-filter: blur(5px); }
+        .msg-error { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-text); }
+        
+        /* --- INPUTS & FORMS --- */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem;}
+        .input-group { margin-bottom: 0.8rem; }
+        .grid-2 .input-group { margin-bottom: 0; }
+        .card > .input-group:last-child, .card > .grid-2:last-child { margin-bottom: 0; }
+
+        .input-group label { display: block; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        
         .input-wrapper {
-            display: flex; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px;
-            overflow: hidden; transition: border-color 0.2s;
+            display: flex; background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 8px; overflow: hidden; transition: all 0.3s ease; align-items: stretch;
         }
-        .input-wrapper:focus-within { border-color: var(--accent-color); }
+        .input-wrapper:focus-within { border-color: var(--accent-teal); box-shadow: 0 0 0 3px rgba(0, 165, 168, 0.15); }
         .input-field {
-            flex: 1; width: 100%; background: transparent; border: none; color: var(--text-main);
-            padding: 8px 12px; font-family: monospace; font-size: 0.95rem; min-width: 0;
+            flex: 1; width: 100%; background: transparent; border: none; color: var(--text-primary);
+            padding: 8px 12px; font-family: 'Plus Jakarta Sans', monospace; font-size: 0.95rem; font-weight: 500; outline: none; min-width: 0;
         }
-        .input-field:focus { outline: none; }
+
+        select option { background-color: var(--bg-base); color: var(--text-primary); }
 
         .modern-select {
-            background: var(--bg-card); color: var(--text-muted); border: none; border-left: 1px solid var(--border-color);
-            padding: 0 12px; font-size: 0.8rem; cursor: pointer; text-align: center;
+            flex: 0 0 auto; appearance: none; -webkit-appearance: none; background: transparent;
+            color: var(--text-secondary); border: none; border-left: 1px solid var(--input-border);
+            padding: 0 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-align: center; outline: none;
         }
+
         .select-primary {
-            flex: 1; width: 100%; background: transparent; border: none; color: var(--text-main);
-            padding: 8px 12px; font-family: monospace; font-size: 0.95rem; cursor: pointer;
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 12px center; background-size: 10px auto;
+            flex: 1; width: 100%; background: transparent; border: none; color: var(--text-primary);
+            padding: 8px 12px; font-size: 0.95rem; font-weight: 500; appearance: none; -webkit-appearance: none; cursor: pointer; outline: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center;
         }
-        .select-primary option { background: var(--bg-card); color: var(--text-main); }
 
-        /* --- DASHBOARD & CHARTS --- */
-        .dashboard-grid { margin-bottom: 15px; } 
-        .dash-card { padding: 15px; border-radius: 8px; border: 1px solid; text-align: center; }
-        .dash-green { background: var(--success-bg); border-color: var(--success-border); }
-        .dash-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--success-text); margin-bottom: 5px; }
-        .dash-value { font-size: 2.2rem; font-weight: 700; color: var(--text-main); font-family: monospace; }
-        .dash-unit { font-size: 0.9rem; color: var(--text-muted); }
+        .unit-label-static { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: transparent; border-left: 1px solid var(--input-border); color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; padding: 0 12px; }
+
+        /* --- DASHBOARD RESULTS --- */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 0.5rem; }
+
+        .dash-card { 
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; 
+            padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); position: relative; 
+            overflow: hidden; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); 
+            text-align: center; transition: background-color 0.4s, border-color 0.4s;
+        }
+        .dash-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; opacity: 0.8; }
         
-        .dash-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; color: var(--text-main); }
-        .dash-table th { text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color); background-color: var(--bg-card); color: var(--text-muted); font-weight: 600; }
-        .dash-table td { padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .state-teal::before { background: linear-gradient(90deg, #00A5A8, #008082); }
+        .state-teal .dash-label { color: var(--accent-teal); }
 
+        .dash-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.5px; color: var(--text-secondary);}
+        .dash-value { font-size: 2.5rem; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; line-height: 1.1; }
+        .dash-unit { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; margin-top: 4px;}
+
+        /* --- DATA TABLES --- */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 5px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 100%; }
+        .data-table th { text-align: left; color: var(--text-secondary); background: var(--metric-bg); padding: 10px 8px; border-bottom: 1px solid var(--card-border); font-weight: 600;}
+        .data-table td { padding: 10px 8px; border-bottom: 1px solid var(--card-border); color: var(--text-primary); white-space: nowrap; }
+        
         .chart-wrapper { position: relative; height: 300px; width: 100%; margin-top: 15px; }
 
-        /* --- PRINT & MODAL --- */
-        @media print {
-            body { background: white; color: black; }
-            .container, .header-bar, #modal-scenarios, .btn-icon, .controls-right { display: none !important; }
-            #report-view { display: block !important; }
-            #copyright-scroll { display: none !important; }
-        }
-        #report-view { display: none; padding: 20px; color: black; background: white;}
-        .rpt-table { width: 100%; border-collapse: collapse; font-size: 12px; color: black; }
-        .rpt-table th { background: #f1f5f9; padding: 6px; text-align: left; border-bottom: 2px solid #ccc; color: black; }
-        .rpt-table td { padding: 6px; border-bottom: 1px solid #eee; color: black; }
+        /* --- MODALS & EXTRAS --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; width: 90%; max-width: 500px; padding: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); backdrop-filter: blur(20px); max-height: 85vh; overflow-y: auto;}
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+        .modal-title { color: var(--text-primary); font-weight: 700; font-size: 1.1rem; }
+        .modal-close { background: transparent; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; transition: 0.2s;}
+        .modal-close:hover { color: var(--text-primary); }
 
-        #copyright-scroll {
-            display: block; width: 100%; text-align: center; margin-top: 35px;
-            font-size: 0.75rem; color: var(--text-muted); font-family: monospace; overflow: hidden;
-        }
-        #copyright-scroll .copyright-inner {
-            display: inline-block; padding-left: 100%; white-space: nowrap; animation: scrollText 18s linear infinite; opacity: 0.75;
-        }
-        @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-        
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; width: 90%; max-width: 500px; padding: 20px; }
-        .scenario-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
-        #toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
-            border-radius: 4px; padding: 16px; position: fixed; z-index: 1001; left: 50%; bottom: 30px; transform: translateX(-50%);
-        }
+        .scenario-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--card-border); background: var(--metric-bg); border-radius: 6px; margin-bottom: 5px;}
+        .btn-action { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s;}
+        .btn-action:hover { background: var(--accent-teal); border-color: var(--accent-teal); color: #fff;}
+
+        #toast { visibility: hidden; min-width: 250px; background: var(--accent-teal); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1001; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.2);}
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* --- SCROLLING FOOTER --- */
+        footer { padding: 1.5rem 2rem; background: var(--footer-bg); backdrop-filter: blur(10px); z-index: 10; position: relative; border-top: 1px solid var(--card-border); display: flex; align-items: center; overflow: hidden; }
+        footer::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent-teal), var(--accent-orange), transparent); animation: footerPulse 6s linear infinite; }
+        @keyframes footerPulse { 0% { left: -100%; } 100% { left: 100%; } }
+        .scrolling-wrapper { flex-grow: 1; overflow: hidden; white-space: nowrap; position: relative; mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%); }
+        .scrolling-content { display: inline-block; animation: tickerScroll 25s linear infinite; }
+        .scrolling-wrapper:hover .scrolling-content { animation-play-state: paused; }
+        .scrolling-content span { display: inline-flex; padding-right: 100vw; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.5px; background: linear-gradient(to right, var(--text-primary) 20%, var(--accent-teal) 50%, var(--accent-orange) 80%, var(--text-primary) 100%); background-size: 300% auto; color: transparent; background-clip: text; -webkit-background-clip: text; animation: footerTextSweep 8s linear infinite; }
+        @keyframes footerTextSweep { to { background-position: 300% center; } }
+        @keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* --- PRINT --- */
+        #report-view { display: none; }
+        @media print {
+            body { background: white; color: black; margin: 0; padding: 0; overflow: visible; }
+            .container, .ambient-glow, .header-controls, #modal-scenarios, footer { display: none !important; }
+            #report-view { display: block; width: 100%; max-width: 1000px; margin: 0 auto; padding: 20px; }
+            .rpt-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+            .rpt-title h1 { font-size: 24px; margin: 0; text-transform: uppercase; color: #1e3a8a; }
+            .rpt-title p { margin: 5px 0 0; color: #666; font-size: 14px; }
+            .rpt-meta { text-align: right; font-size: 12px; color: #444; }
+            .rpt-section { margin-bottom: 20px; }
+            .rpt-h2 { font-size: 14px; font-weight: bold; text-transform: uppercase; color: #1e3a8a; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; }
+            .rpt-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            .rpt-table th { text-align: left; background: #f1f5f9; padding: 6px; border-bottom: 2px solid #ccc; font-weight: bold; }
+            .rpt-table td { padding: 6px; border-bottom: 1px solid #eee; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-bar">
-        <div class="header-title">
-            <h1>Pipeline Design Calculator</h1>
-            <p>ASME B31.8 / API 5L</p>
-        </div>
-        <div class="controls-right">
-            <button class="btn-icon" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
-                <i class="fas fa-sun"></i>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <main class="container">
+        
+        <div class="header-controls" data-html2canvas-ignore>
+            <button id="themeToggle" class="icon-btn" aria-label="Toggle Theme">
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
             </button>
 
             <div class="menu-container">
-                <button class="btn-icon" onclick="toggleMenu()"><i class="fas fa-ellipsis-v"></i></button>
+                <button class="icon-btn" onclick="toggleMenu()" title="Menu">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
                 <div class="menu-dropdown" id="main-menu">
-                    <div class="menu-item" onclick="handleMenuAction('scenario')"><i class="fas fa-folder-open"></i> Scenarios</div>
-                    <div class="menu-item" onclick="handleMenuAction('share')"><i class="fas fa-share-alt"></i> Share Link</div>
-                    <div class="menu-item" onclick="handleMenuAction('report')"><i class="fas fa-print"></i> Print Report</div>
+                    <div class="menu-item" onclick="handleMenuAction('scenario')">
+                        <i class="fas fa-folder-open"></i> Scenarios
+                    </div>
+                    <div class="menu-item" onclick="handleMenuAction('share')">
+                        <i class="fas fa-link"></i> Share Link
+                    </div>
+                    <div class="menu-item" onclick="handleMenuAction('report')">
+                        <i class="fas fa-print"></i> Print Report
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <div id="validation-console" style="grid-column: 1/-1; display:none;"></div>
-    <div class="col-inputs">
-        
-        <div class="card">
-            <div class="section-header">Geometry & Dimensions</div>
+
+        <header>
+            <h1>Design Calculator</h1>
+            <p class="tagline">ASME B31.8 Pipeline Design</p>
+        </header>
+
+        <div id="validation-console"></div>
+
+        <div class="layout-grid">
             
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>Nominal Pipe Size (NPS)</label>
-                    <div class="input-wrapper">
-                        <select id="sel-nps" class="select-primary">
-                            <option value="" disabled selected>Loading...</option>
-                        </select>
+            <div class="col-inputs">
+                
+                <div class="card">
+                    <div class="section-header">Geometry & Dimensions</div>
+                    
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Nominal Pipe Size</label>
+                            <div class="input-wrapper">
+                                <select id="sel-nps" class="select-primary">
+                                    <option value="" disabled selected>Loading...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Std. Thickness (Ref)</label>
+                            <div class="input-wrapper">
+                                <select id="sel-std-wt" class="select-primary">
+                                    <option value="" disabled selected>Select NPS First</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label>Std. Thickness (Ref)</label>
-                    <div class="input-wrapper">
-                        <select id="sel-std-wt" class="select-primary">
-                            <option value="" disabled selected>Select NPS First</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
 
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>Outside Diameter (OD)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="D" class="input-field calc-trigger" step="0.001">
-                        <select id="sel-od-unit" class="modern-select unit-change-trigger" data-input="D" data-type="length">
-                            <option value="inch">inch</option>
-                            <option value="mm">mm</option>
-                        </select>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Outside Diameter (OD)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="D" class="input-field calc-trigger" step="0.001">
+                                <select id="sel-od-unit" class="modern-select unit-change-trigger" data-input="D" data-type="length">
+                                    <option value="inch">inch</option>
+                                    <option value="mm">mm</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label style="color:var(--accent-teal);">Wall Thickness (t)</label>
+                            <div class="input-wrapper" style="border-color: var(--accent-teal); box-shadow: 0 0 0 1px rgba(0,165,168,0.2);">
+                                <input type="number" id="t" class="input-field calc-trigger" placeholder="Leave blank to calculate" oninput="clearInput('P')">
+                                <select id="sel-wt-unit" class="modern-select unit-change-trigger" data-input="t,CA" data-type="length">
+                                    <option value="mm">mm</option>
+                                    <option value="inch">inch</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label style="color:var(--highlight);">Wall Thickness (t)</label>
-                    <div class="input-wrapper" style="border-color: var(--highlight);">
-                        <input type="number" id="t" class="input-field calc-trigger" placeholder="Enter for Pressure" oninput="clearInput('P')">
-                        <select id="sel-wt-unit" class="modern-select unit-change-trigger" data-input="t,CA" data-type="length">
-                            <option value="mm">mm</option>
-                            <option value="inch">inch</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:-5px; text-align:right;">* Leave 't' blank to calculate Thickness</div>
-        </div>
 
-        <div class="card">
-            <div class="section-header">Pipe Material</div>
+                <div class="card">
+                    <div class="section-header">Pipe Material</div>
+                    
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>API 5L Grade</label>
+                            <div class="input-wrapper">
+                                <select id="sel-grade" class="select-primary">
+                                    <option value="" disabled selected>Select Grade...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>SMYS</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="S" class="input-field calc-trigger" value="35500" step="100">
+                                <div class="unit-label-static">psi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-header">Design Parameters</div>
+
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <label style="color:var(--accent-orange);">Internal Design Pressure (P)</label>
+                        <div class="input-wrapper" style="border-color: var(--accent-orange); box-shadow: 0 0 0 1px rgba(243,112,33,0.2);">
+                            <input type="number" id="P" class="input-field calc-trigger" placeholder="Leave blank to calculate" oninput="clearInput('t')">
+                            <select id="sel-press-unit" class="modern-select unit-change-trigger" data-input="P" data-type="pressure">
+                                <option value="kgcm2">kg/cm²</option>
+                                <option value="psi">psi</option>
+                                <option value="bar">bar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Corr. Allowance</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="CA" class="input-field calc-trigger" value="0" min="0" step="0.1">
+                                <div id="lbl-ca-unit" class="unit-label-static">mm</div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Mill Tolerance (%)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="Tol" class="input-field calc-trigger" value="0" min="0" max="100">
+                                <div class="unit-label-static">%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-header">Factors (ASME B31.8)</div>
+                    
+                    <div class="input-group" style="margin-bottom: 0.8rem;">
+                        <label>Location Class Factor (F)</label>
+                        <div class="input-wrapper">
+                            <select id="F" class="select-primary calc-trigger">
+                                <option value="0.72">Class 1 (F=0.72)</option>
+                                <option value="0.6">Class 2 (F=0.60)</option>
+                                <option value="0.5">Class 3 (F=0.50)</option>
+                                <option value="0.4">Class 4 (F=0.40)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Joint Factor (E)</label>
+                            <div class="input-wrapper">
+                                <select id="E" class="select-primary calc-trigger">
+                                    <option value="1.0">1.0 (SMLS/ERW)</option>
+                                    <option value="0.8">0.8 (EFW)</option>
+                                    <option value="0.6">0.6 (FBW)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Temp. Factor (T)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="T" class="input-field calc-trigger" value="1.0" step="0.01" max="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> 
             
-            <div class="input-group">
-                <label>Material Grade (API 5L)</label>
-                <div class="input-wrapper">
-                    <select id="sel-grade" class="select-primary">
-                        <option value="" disabled selected>Select Grade...</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>SMYS (Specified Min. Yield Strength)</label>
-                <div class="input-wrapper">
-                    <input type="number" id="S" class="input-field calc-trigger" value="35500" step="100">
-                    <div style="color: var(--text-muted); padding: 0 10px; font-size: 0.8rem; display: flex; align-items: center;">psi</div>
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="section-header">Design Parameters</div>
-
-            <div class="input-group">
-                <label style="color:var(--highlight);">Internal Design Pressure (P)</label>
-                <div class="input-wrapper" style="border-color: var(--highlight);">
-                    <input type="number" id="P" class="input-field calc-trigger" placeholder="Enter for Thickness" oninput="clearInput('t')">
-                    <select id="sel-press-unit" class="modern-select unit-change-trigger" data-input="P" data-type="pressure">
-                        <option value="kgcm2">kg/cm²</option>
-                        <option value="psi">psi</option>
-                        <option value="bar">bar</option>
-                    </select>
-                </div>
-            </div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:-5px; text-align:right; margin-bottom:10px;">* Leave 'P' blank to calculate Pressure</div>
-
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>Corr. Allowance</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="CA" class="input-field calc-trigger" value="0" min="0" step="0.1">
-                        <div id="lbl-ca-unit" style="color: var(--text-muted); padding: 0 10px; font-size: 0.8rem; display: flex; align-items: center;">mm</div>
+            <div class="col-results">
+                
+                <div class="dashboard-grid">
+                    <div class="dash-card state-teal">
+                        <div class="dash-label" id="res-main-label">Calculated Result</div>
+                        <div class="dash-value" id="res-main-val">0.00</div>
+                        <div class="dash-unit" id="res-main-unit">-</div>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label>Mill Tolerance (%)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="Tol" class="input-field calc-trigger" value="0" min="0" max="100">
+
+                <div class="card" id="card-table" style="display:none;">
+                    <div class="section-header">Location Class Comparison</div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Factor (F)</th>
+                                    <th id="tbl-head-val">Value</th>
+                                    <th id="tbl-head-std">Next Std. WT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="result-body"></tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="card">
-            <div class="section-header">Factors (ASME B31.8)</div>
+                <div class="card" id="card-bar-chart" style="display:none;">
+                    <div class="section-header">Comparison Chart</div>
+                    <div class="chart-wrapper">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" id="card-line-chart" style="display:none;">
+                    <div class="section-header">Pressure vs. Thickness</div>
+                    <div class="chart-wrapper">
+                        <canvas id="pressureThicknessChart"></canvas>
+                    </div>
+                </div>
+                
+                <div id="lineChartError" style="display:none; color:var(--danger-text); background:var(--danger-bg); border:1px solid var(--danger-border); padding:10px; border-radius:8px; font-size:0.85rem; font-weight:600;"></div>
+
+            </div>
+        </div> 
+    </main>
+
+    <div id="toast">Action Successful!</div>
+
+    <div id="modal-scenarios" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Scenario Manager</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
             
-            <div class="input-group">
-                <label>Location Class Factor (F)</label>
-                <div class="input-wrapper">
-                    <select id="F" class="select-primary calc-trigger">
-                        <option value="0.72">Class 1 (F=0.72)</option>
-                        <option value="0.6">Class 2 (F=0.60)</option>
-                        <option value="0.5">Class 3 (F=0.50)</option>
-                        <option value="0.4">Class 4 (F=0.40)</option>
-                    </select>
-                </div>
+            <div class="input-wrapper" style="margin-bottom:15px;">
+                <input type="text" id="scenario-name" class="input-field" placeholder="Scenario Name (e.g. 16 inch Class 1)">
+                <button class="btn-action" onclick="saveScenario()" style="border-radius:0 8px 8px 0; border:none; border-left: 1px solid var(--input-border);">Save</button>
             </div>
 
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>Joint Factor (E)</label>
-                    <div class="input-wrapper">
-                        <select id="E" class="select-primary calc-trigger">
-                            <option value="1.0">1.0 (Smls/ERW)</option>
-                            <option value="0.8">0.8 (EFW)</option>
-                            <option value="0.6">0.6 (FBW)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Temp. Factor (T)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="T" class="input-field calc-trigger" value="1.0" step="0.01" max="1">
-                    </div>
-                </div>
+            <div class="scenario-list" id="list-scenarios" style="max-height:300px; overflow-y:auto; border:1px solid var(--card-border); border-radius:8px; background:var(--metric-bg);"></div>
+        </div>
+    </div>
+
+    <div id="report-view">
+        <div class="rpt-header" style="border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 10px; display:flex; justify-content:space-between; align-items:flex-end;">
+            <div>
+                <h1 style="color:#1e3a8a; font-size:24px; margin:0; text-transform:uppercase;">Design Calculation Report</h1>
+                <p style="color:#666; font-size:12px; margin:5px 0 0 0;">Generated by Pipelineer Tools</p>
+            </div>
+            <div style="text-align:right; font-size:12px; color:#444;" id="rpt-date"></div>
+        </div>
+
+        <div class="rpt-section" style="margin-bottom:20px;">
+            <h2 class="rpt-h2" style="font-size:14px; font-weight:bold; color:#1e3a8a; border-bottom:1px solid #ccc; padding-bottom:5px; margin-bottom:10px; text-transform:uppercase;">Input Parameters</h2>
+            <table class="rpt-table">
+                <tr><td width="50%">Outer Diameter (D)</td><td id="rpt-D" style="font-weight:bold;"></td></tr>
+                <tr><td>Wall Thickness (t)</td><td id="rpt-t" style="font-weight:bold;"></td></tr>
+                <tr><td>Material Grade</td><td id="rpt-grade" style="font-weight:bold;"></td></tr>
+                <tr><td>SMYS (S)</td><td id="rpt-S" style="font-weight:bold;"></td></tr>
+                <tr><td>Design Pressure (P)</td><td id="rpt-P" style="font-weight:bold;"></td></tr>
+                <tr><td>Corrosion Allowance</td><td id="rpt-CA" style="font-weight:bold;"></td></tr>
+                <tr><td>Mill Tolerance</td><td id="rpt-Tol" style="font-weight:bold;"></td></tr>
+                <tr><td>Temp Factor (T)</td><td id="rpt-T" style="font-weight:bold;"></td></tr>
+                <tr><td>Joint Factor (E)</td><td id="rpt-E" style="font-weight:bold;"></td></tr>
+                <tr><td>Design Factor (F)</td><td id="rpt-F" style="font-weight:bold;"></td></tr>
+            </table>
+        </div>
+
+        <div class="rpt-section">
+            <h2 class="rpt-h2" style="font-size:14px; font-weight:bold; color:#1e3a8a; border-bottom:1px solid #ccc; padding-bottom:5px; margin-bottom:10px; text-transform:uppercase;">Calculation Results</h2>
+            <div style="background:#f8fafc; padding:15px; border:1px solid #e2e8f0; margin-bottom:15px; color: black; border-radius:4px;">
+                <strong id="rpt-res-title">Result:</strong>
+                <span id="rpt-res-val" style="font-size:18px; font-weight:bold; margin-left:10px;"></span>
+            </div>
+            <table class="rpt-table">
+                <thead>
+                    <tr>
+                        <th>Location Class</th>
+                        <th>Factor (F)</th>
+                        <th>Value</th>
+                        <th id="rpt-head-std">Next Std. WT</th>
+                    </tr>
+                </thead>
+                <tbody id="rpt-body"></tbody>
+            </table>
+        </div>
+
+        <div style="margin-top:50px; text-align:center; font-size:10px; color:#999; border-top:1px solid #ccc; padding-top:10px;">
+            Calculation based on ASME B31.8 formulas.
+        </div>
+    </div>
+
+    <footer data-html2canvas-ignore>
+        <div class="scrolling-wrapper">
+            <div class="scrolling-content">
+                <span>Designed & Developed by Ramakrishna Mullapudi &copy; 2026</span>
+                <span aria-hidden="true">Designed & Developed by Ramakrishna Mullapudi &copy; 2026</span>
             </div>
         </div>
-    </div> 
-    
-    <div class="col-results">
+    </footer>
+    <script>
+        // --- THEME INITIALIZATION & TOGGLE ---
+        const htmlElement = document.documentElement;
+        const themeToggleBtn = document.getElementById('themeToggle');
         
-        <div class="dashboard-grid" style="display: grid; grid-template-columns: 1fr;">
-            <div class="dash-card dash-green">
-                <div class="dash-label" id="res-main-label">Calculated Result</div>
-                <div class="dash-value" id="res-main-val">0.00</div>
-                <div class="dash-unit" id="res-main-unit">-</div>
-            </div>
-        </div>
+        const savedTheme = localStorage.getItem('pipelineer-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        <div class="card" id="card-table" style="display:none;">
-            <div class="section-header">Location Class Comparison</div>
-            <div style="overflow-x:auto;">
-                <table class="dash-table">
-                    <thead>
-                        <tr>
-                            <th>Class</th>
-                            <th>Factor (F)</th>
-                            <th id="tbl-head-val">Value</th>
-                            <th id="tbl-head-std">Next Std. WT</th>
-                        </tr>
-                    </thead>
-                    <tbody id="result-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="card" id="card-bar-chart" style="display:none;">
-            <div class="section-header">Comparison Chart</div>
-            <div class="chart-wrapper">
-                <canvas id="barChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card" id="card-line-chart" style="display:none;">
-            <div class="section-header">Pressure vs. Thickness</div>
-            <div class="chart-wrapper">
-                <canvas id="pressureThicknessChart"></canvas>
-            </div>
-        </div>
-        
-        <div id="lineChartError" style="display:none; color:#f87171; background:rgba(127,29,29,0.2); padding:10px; border-radius:4px; font-size:0.8rem;"></div>
-
-    </div>
-</div> 
-<div id="toast">Scenario Saved!</div>
-
-<div id="modal-scenarios" class="modal-overlay">
-    <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
-            <span style="font-weight:700; color:var(--text-main);">Scenario Manager</span>
-            <button onclick="closeModal()" style="background:transparent; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
-        </div>
-        
-        <div class="input-wrapper" style="margin-bottom:10px;">
-            <input type="text" id="scenario-name" class="input-field" placeholder="Scenario Name (e.g. 16 inch Class 1)" style="background:var(--bg-input);">
-            <button onclick="saveScenario()" style="width: auto; border-radius:0 4px 4px 0; background: var(--accent-color); color:white; border:none; padding:0 15px; cursor:pointer;">Save</button>
-        </div>
-
-        <div id="list-scenarios" style="max-height:300px; overflow-y:auto; border:1px solid var(--border-color);"></div>
-    </div>
-</div>
-
-<div id="report-view">
-    <div style="border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 10px;">
-        <h1 style="color:#1e3a8a; font-size:24px; margin:0;">Pipeline Design Calculation Report</h1>
-        <p style="color:#666; font-size:12px; margin:5px 0;">Generated by Pipeline Design Calculator</p>
-        <div style="text-align:right; font-size:12px; color:#444;" id="rpt-date"></div>
-    </div>
-
-    <div class="rpt-section">
-        <h2 class="rpt-h2">Input Parameters</h2>
-        <table class="rpt-table">
-            <tr><td width="50%">Outer Diameter (D)</td><td id="rpt-D"></td></tr>
-            <tr><td>Wall Thickness (t)</td><td id="rpt-t"></td></tr>
-            <tr><td>Material Grade</td><td id="rpt-grade"></td></tr>
-            <tr><td>SMYS (S)</td><td id="rpt-S"></td></tr>
-            <tr><td>Design Pressure (P)</td><td id="rpt-P"></td></tr>
-            <tr><td>Corrosion Allowance</td><td id="rpt-CA"></td></tr>
-            <tr><td>Mill Tolerance</td><td id="rpt-Tol"></td></tr>
-            <tr><td>Temp Factor (T)</td><td id="rpt-T"></td></tr>
-            <tr><td>Joint Factor (E)</td><td id="rpt-E"></td></tr>
-            <tr><td>Design Factor (F)</td><td id="rpt-F"></td></tr>
-        </table>
-    </div>
-
-    <div class="rpt-section">
-        <h2 class="rpt-h2">Calculation Results</h2>
-        <div style="background:#f8fafc; padding:15px; border:1px solid #e2e8f0; margin-bottom:15px; color: black;">
-            <strong id="rpt-res-title">Result:</strong>
-            <span id="rpt-res-val" style="font-size:18px; font-weight:bold; margin-left:10px;"></span>
-        </div>
-        <table class="rpt-table">
-            <thead>
-                <tr>
-                    <th>Location Class</th>
-                    <th>Factor (F)</th>
-                    <th>Value</th>
-                    <th id="rpt-head-std">Next Std. WT</th>
-                </tr>
-            </thead>
-            <tbody id="rpt-body"></tbody>
-        </table>
-    </div>
-
-    <div style="margin-top:50px; text-align:center; font-size:10px; color:#999; border-top:1px solid #ccc; padding-top:10px;">
-        Calculation based on ASME B31.8 / API 5L formulas.
-    </div>
-</div>
-<footer id="copyright-scroll">
-    <span class="copyright-inner">
-        Designed & Developed by Ramakrishna Mullapudi © 2025
-    </span>
-</footer>
-<script>
-    // --- 1. DATA & CONSTANTS ---
-    const NPS_DATA = {
-      "4": { odIn: 4.5, odMm: 114.3 },
-      "6": { odIn: 6.625, odMm: 168.3 },
-      "8": { odIn: 8.625, odMm: 219.1 },
-      "10": { odIn: 10.75, odMm: 273.0 },
-      "12": { odIn: 12.75, odMm: 323.9 },
-      "14": { odIn: 14.0, odMm: 355.6 },
-      "16": { odIn: 16.0, odMm: 406.4 },
-      "18": { odIn: 18.0, odMm: 457.2 },
-      "20": { odIn: 20.0, odMm: 508.0 },
-      "22": { odIn: 22.0, odMm: 558.8 },
-      "24": { odIn: 24.0, odMm: 609.6 },
-      "26": { odIn: 26.0, odMm: 660.4 },
-      "28": { odIn: 28.0, odMm: 711.2 },
-      "30": { odIn: 30.0, odMm: 762.0 },
-      "32": { odIn: 32.0, odMm: 812.8 },
-      "34": { odIn: 34.0, odMm: 863.6 },
-      "36": { odIn: 36.0, odMm: 914.4 },
-      "40": { odIn: 40.0, odMm: 1016.0 },
-      "42": { odIn: 42.0, odMm: 1067.0 },
-      "48": { odIn: 48.0, odMm: 1219.0 }
-    };
-
-    const API_GRADES = {
-      "A25": 25000, "A": 30000, "B": 35500,
-      "X42": 42100, "X46": 46400, "X52": 52200, "X56": 56600,
-      "X60": 60200, "X65": 65300, "X70": 70300, "X80": 80500
-    };
-
-    const STD_WALLS = [
-        0.188, 0.219, 0.250, 0.281, 0.312, 0.344, 0.375, 0.406, 0.438, 0.469, 
-        0.500, 0.562, 0.625, 0.688, 0.750, 0.812, 0.875, 0.938, 1.000, 1.125, 
-        1.250, 1.375, 1.500
-    ];
-    
-    const DESIGN_FACTORS = [0.72, 0.6, 0.5, 0.4];
-    const CHART_COLORS = ['#4ade80', '#fbbf24', '#f87171', '#a78bfa'];
-
-    const KGCM2_TO_PSI = 14.2233;
-    const BAR_TO_PSI = 14.5038;
-    const MM_TO_IN = 1 / 25.4;
-
-    let barChart = null;
-    let lineChart = null;
-    let savedScenarios = [];
-
-    const lastUnits = {
-        'sel-od-unit': 'inch',
-        'sel-wt-unit': 'mm',
-        'sel-press-unit': 'kgcm2'
-    };
-
-    // --- 2. CONVERSION LOGIC ---
-    const converters = {
-        length: {
-            toBase: (v, u) => u === 'inch' ? v : v * MM_TO_IN,
-            fromBase: (v, u) => u === 'inch' ? v : v * 25.4
-        },
-        pressure: {
-            toBase: (v, u) => {
-                if (u === 'kgcm2') return v * KGCM2_TO_PSI;
-                if (u === 'bar') return v * BAR_TO_PSI;
-                return v;
-            },
-            fromBase: (v, u) => {
-                if (u === 'kgcm2') return v / KGCM2_TO_PSI;
-                if (u === 'bar') return v / BAR_TO_PSI;
-                return v;
-            }
-        }
-    };
-
-    function getDisplayUnit(u) {
-        return (u === 'kgcm2') ? 'kg/cm²' : u;
-    }
-
-    function handleUnitChange(e) {
-        const select = e.target;
-        const type = select.dataset.type;
-        const inputIds = select.dataset.input.split(',');
-        const newUnit = select.value;
-        const oldUnit = lastUnits[select.id];
-
-        if (!oldUnit || !type || newUnit === oldUnit) return;
-
-        inputIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && el.value !== "") {
-                const val = parseFloat(el.value);
-                if (!isNaN(val)) {
-                    const baseVal = converters[type].toBase(val, oldUnit);
-                    const newVal = converters[type].fromBase(baseVal, newUnit);
-                    el.value = (Math.abs(newVal) < 0.01) ? newVal.toPrecision(4) : parseFloat(newVal.toFixed(3));
-                }
-            }
-        });
-
-        if(select.id === 'sel-wt-unit') {
-            document.getElementById('lbl-ca-unit').innerText = getDisplayUnit(newUnit);
-        }
-
-        lastUnits[select.id] = newUnit;
-        calculate();
-    }
-
-    // --- 3. THEME & STORAGE & SHARE LOGIC ---
-    
-    function initTheme() {
-        const storedTheme = localStorage.getItem('pipelineTheme');
-        const theme = storedTheme || 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
-        updateThemeIcon(theme);
-    }
-
-    function toggleTheme() {
-        const current = document.documentElement.getAttribute('data-theme');
-        const newTheme = current === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('pipelineTheme', newTheme);
-        updateThemeIcon(newTheme);
-        calculate(); 
-    }
-
-    function updateThemeIcon(theme) {
-        const icon = document.querySelector('#theme-toggle i');
-        if (theme === 'light') {
-            icon.className = 'fas fa-moon';
+        if (savedTheme === 'light' || (!savedTheme && !systemPrefersDark)) {
+            htmlElement.setAttribute('data-theme', 'light');
         } else {
-            icon.className = 'fas fa-sun';
+            htmlElement.setAttribute('data-theme', 'dark');
         }
-    }
 
-    // -- SHARE LOGIC --
-    function copyShareLink() {
-        const params = new URLSearchParams();
-        // Add all inputs to query params
-        document.querySelectorAll('input, select').forEach(el => {
-            if(el.id && el.value) params.append(el.id, el.value);
-        });
-        // Add current unit states
-        Object.keys(lastUnits).forEach(k => params.append(k, lastUnits[k]));
-
-        const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-        
-        navigator.clipboard.writeText(url).then(() => {
-            const t = document.getElementById('toast');
-            t.innerText = "Link Copied to Clipboard!";
-            t.classList.add('show');
-            setTimeout(() => {
-                t.classList.remove('show');
-                t.innerText = "Scenario Saved!"; // Reset text
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            alert("Could not copy link to clipboard. Check permissions.");
-        });
-    }
-
-    function loadFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        if(params.toString() === "") return false;
-
-        params.forEach((val, key) => {
-            const el = document.getElementById(key);
-            if(el) el.value = val;
-            if(lastUnits[key]) lastUnits[key] = val; // Restore units
-        });
-        
-        // Update unit label
-        const unit = lastUnits['sel-wt-unit'] || 'mm';
-        document.getElementById('lbl-ca-unit').innerText = getDisplayUnit(unit);
-        
-        // Remove query params from URL to clean up address bar
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return true;
-    }
-
-    // -- LOCAL STORAGE LOGIC --
-    function saveStateToLocal() {
-        const state = {};
-        document.querySelectorAll('input, select').forEach(el => {
-            if (el.id) state[el.id] = el.value;
-        });
-        localStorage.setItem('pipelineLastState', JSON.stringify(state));
-    }
-
-    function loadStateFromLocal() {
-        const stored = localStorage.getItem('pipelineLastState');
-        if (!stored) return false; 
-        try {
-            const state = JSON.parse(stored);
-            Object.keys(state).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = state[id];
-            });
-            if (state['sel-od-unit']) lastUnits['sel-od-unit'] = state['sel-od-unit'];
-            if (state['sel-wt-unit']) lastUnits['sel-wt-unit'] = state['sel-wt-unit'];
-            if (state['sel-press-unit']) lastUnits['sel-press-unit'] = state['sel-press-unit'];
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('pipelineer-theme', newTheme);
             
-            document.getElementById('lbl-ca-unit').innerText = getDisplayUnit(state['sel-wt-unit'] || 'mm');
-            return true;
-        } catch (e) {
-            console.error("Error loading state", e);
-            return false;
-        }
-    }
-
-    // --- 4. INITIALIZATION ---
-    function init() {
-        initTheme();
-
-        const npsSel = document.getElementById('sel-nps');
-        Object.keys(NPS_DATA).sort((a,b)=>Number(a)-Number(b)).forEach(n => {
-            const opt = document.createElement('option');
-            opt.value = n; opt.textContent = `NPS ${n}"`;
-            npsSel.appendChild(opt);
-        });
-        npsSel.addEventListener('change', handleNpsChange);
-
-        const gradeSel = document.getElementById('sel-grade');
-        Object.keys(API_GRADES).forEach(g => {
-            const opt = document.createElement('option');
-            opt.value = g; opt.textContent = `API 5L X${g.replace('X','')}`;
-            gradeSel.appendChild(opt);
-        });
-        gradeSel.addEventListener('change', () => {
-             const g = document.getElementById('sel-grade').value;
-             if(API_GRADES[g]) document.getElementById('S').value = API_GRADES[g];
-             calculate();
+            // Re-render charts to immediately update grid lines and text colors
+            if (typeof calculate === 'function') calculate();
         });
 
-        const wtSel = document.getElementById('sel-std-wt');
-        STD_WALLS.forEach(w => {
-            const opt = document.createElement('option');
-            opt.value = w; 
-            opt.textContent = `${w.toFixed(3)}" (${(w*25.4).toFixed(2)}mm)`;
-            wtSel.appendChild(opt);
-        });
-        wtSel.addEventListener('change', () => {
-            const valIn = parseFloat(wtSel.value);
-            const unit = document.getElementById('sel-wt-unit').value;
-            const val = (unit === 'inch') ? valIn : valIn * 25.4;
-            document.getElementById('t').value = val.toFixed(3);
-            clearInput('P'); 
-            calculate();
-        });
+        // --- 1. DATA & CONSTANTS ---
+        const NPS_DATA = {
+          "4": { odIn: 4.5, odMm: 114.3 }, "6": { odIn: 6.625, odMm: 168.3 },
+          "8": { odIn: 8.625, odMm: 219.1 }, "10": { odIn: 10.75, odMm: 273.0 },
+          "12": { odIn: 12.75, odMm: 323.9 }, "14": { odIn: 14.0, odMm: 355.6 },
+          "16": { odIn: 16.0, odMm: 406.4 }, "18": { odIn: 18.0, odMm: 457.2 },
+          "20": { odIn: 20.0, odMm: 508.0 }, "22": { odIn: 22.0, odMm: 558.8 },
+          "24": { odIn: 24.0, odMm: 609.6 }, "26": { odIn: 26.0, odMm: 660.4 },
+          "28": { odIn: 28.0, odMm: 711.2 }, "30": { odIn: 30.0, odMm: 762.0 },
+          "32": { odIn: 32.0, odMm: 812.8 }, "34": { odIn: 34.0, odMm: 863.6 },
+          "36": { odIn: 36.0, odMm: 914.4 }, "40": { odIn: 40.0, odMm: 1016.0 },
+          "42": { odIn: 42.0, odMm: 1067.0 }, "48": { odIn: 48.0, odMm: 1219.0 }
+        };
 
-        const storedScenarios = localStorage.getItem('pipelineScenarios');
-        if(storedScenarios) savedScenarios = JSON.parse(storedScenarios);
+        const API_GRADES = {
+          "A25": 25000, "A": 30000, "B": 35500,
+          "X42": 42100, "X46": 46400, "X52": 52200, "X56": 56600,
+          "X60": 60200, "X65": 65300, "X70": 70300, "X80": 80500
+        };
 
-        document.querySelectorAll('.calc-trigger').forEach(el => {
-            el.addEventListener('input', calculate);
-            el.addEventListener('change', calculate);
-        });
-        document.querySelectorAll('.unit-change-trigger').forEach(el => {
-            el.addEventListener('change', handleUnitChange);
-        });
-
-        // PRIORITY: 1. URL Params, 2. Local Storage, 3. Defaults
-        if (!loadFromURL()) {
-            if (!loadStateFromLocal()) {
-                document.getElementById('sel-nps').value = "36";
-                handleNpsChange(); 
-                document.getElementById('sel-grade').value = "X60";
-                document.getElementById('S').value = API_GRADES["X60"];
-                document.getElementById('P').value = "92"; 
-                document.getElementById('CA').value = "1"; 
-                document.getElementById('Tol').value = "10"; 
-            }
-        }
-
-        // Force calculation on load
-        calculate();
-    }
-
-    function handleNpsChange() {
-        const nps = document.getElementById('sel-nps').value;
-        if(!NPS_DATA[nps]) return;
-        const data = NPS_DATA[nps];
-        const unit = document.getElementById('sel-od-unit').value;
-        const val = (unit === 'inch') ? data.odIn : data.odMm;
-        document.getElementById('D').value = val.toFixed(3);
-        calculate();
-    }
-
-    function clearInput(id) {
-        if(document.getElementById(id).value !== '') {
-            document.getElementById(id).value = '';
-            calculate();
-        }
-    }
-
-    // --- 5. CALCULATION ENGINE ---
-    function calculate() {
-        saveStateToLocal();
-
-        const getVal = (id) => parseFloat(document.getElementById(id).value);
-        const getUnit = (id) => document.getElementById(id).value;
-
-        const D_raw = getVal('D');
-        const t_raw = getVal('t');
-        const P_raw = getVal('P');
-        const S = getVal('S');
-        const F = getVal('F');
-        const E = getVal('E');
-        const T = getVal('T');
-        const CA_raw = getVal('CA') || 0;
-        const Tol = getVal('Tol') || 0;
-
-        const u_D = getUnit('sel-od-unit');
-        const u_t = getUnit('sel-wt-unit');
-        const u_P = getUnit('sel-press-unit');
-
-        document.getElementById('validation-console').style.display = 'none';
-        document.getElementById('card-bar-chart').style.display = 'none';
-        document.getElementById('card-line-chart').style.display = 'none';
-        document.getElementById('card-table').style.display = 'none';
-        document.getElementById('res-main-val').innerText = "0.00";
-
-        if (!D_raw || !S || !F || !E || !T) return; 
-
-        const D_in = converters.length.toBase(D_raw, u_D);
-        const CA_in = converters.length.toBase(CA_raw, u_t);
-        const S_psi = S; 
+        const STD_WALLS = [
+            0.188, 0.219, 0.250, 0.281, 0.312, 0.344, 0.375, 0.406, 0.438, 0.469, 
+            0.500, 0.562, 0.625, 0.688, 0.750, 0.812, 0.875, 0.938, 1.000, 1.125, 
+            1.250, 1.375, 1.500
+        ];
         
-        const isSolveForThickness = (isNaN(t_raw) || t_raw === 0) && (!isNaN(P_raw) && P_raw > 0);
-        const isSolveForPressure = (!isNaN(t_raw) && t_raw > 0);
-
-        if (!isSolveForThickness && !isSolveForPressure) return; 
-
-        let mainResultVal = 0;
-        let mainResultUnit = '';
-        let resultLabel = '';
-        const chartData = [];
-        const tableData = [];
-
-        // Logic for Table Headers
-        const stdHeader = document.getElementById('tbl-head-std');
-        const rptStdHeader = document.getElementById('rpt-head-std');
-
-        if (isSolveForThickness) {
-            stdHeader.style.display = 'table-cell';
-            rptStdHeader.style.display = 'table-cell';
-
-            const P_psi = converters.pressure.toBase(P_raw, u_P);
-            resultLabel = 'Required Thickness';
-            mainResultUnit = getDisplayUnit(u_t);
-
-            DESIGN_FACTORS.forEach(f => {
-                const t_design_in = (P_psi * D_in) / (2 * S_psi * f * E * T);
-                const t_nom_in = (t_design_in + CA_in) / (1 - (Tol/100));
-                
-                const t_display = converters.length.fromBase(t_nom_in, u_t);
-                chartData.push(t_display);
-                
-                const t_compare_in = t_nom_in; 
-                let nextStd_in = STD_WALLS.find(w => w >= t_compare_in);
-                let nextStd_display = "-";
-                
-                if (nextStd_in) {
-                    nextStd_display = converters.length.fromBase(nextStd_in, u_t).toFixed(3);
-                } else {
-                    nextStd_display = "> Max Std";
-                }
-
-                if (f === F) mainResultVal = t_display;
-                tableData.push({ f: f, val: t_display.toFixed(3), std: nextStd_display });
-            });
-
-        } else {
-            // Pressure Mode
-            stdHeader.style.display = 'none';
-            rptStdHeader.style.display = 'none';
-
-            const t_in = converters.length.toBase(t_raw, u_t);
-            resultLabel = 'Max Design Pressure';
-            mainResultUnit = getDisplayUnit(u_P);
-
-            const t_eff_in = t_in * (1 - (Tol/100)) - CA_in;
-
-            if (t_eff_in <= 0) {
-                document.getElementById('validation-console').style.display = 'block';
-                document.getElementById('validation-console').innerHTML = '<div style="padding:10px; background:#450a0a; border:1px solid #7f1d1d; color:#fca5a5; border-radius:6px;">Effective thickness is zero or negative. Check Corrosion Allowance.</div>';
-                return;
-            }
-
-            DESIGN_FACTORS.forEach(f => {
-                const P_calc_psi = (2 * S_psi * f * E * T * t_eff_in) / D_in;
-                const P_display = converters.pressure.fromBase(P_calc_psi, u_P);
-                chartData.push(P_display);
-                
-                if (f === F) mainResultVal = P_display;
-                tableData.push({ f: f, val: P_display.toFixed(2), std: null });
-            });
-        }
-
-        document.getElementById('res-main-label').innerText = resultLabel;
-        document.getElementById('res-main-val').innerText = mainResultVal.toFixed(3);
-        document.getElementById('res-main-unit').innerText = mainResultUnit;
-
-        const tbody = document.getElementById('result-body');
-        tbody.innerHTML = '';
-        const mapClass = {0.72:'Class 1', 0.6:'Class 2', 0.5:'Class 3', 0.4:'Class 4'};
+        const DESIGN_FACTORS = [0.72, 0.6, 0.5, 0.4];
         
-        tableData.forEach(row => {
-            const isSelected = (row.f === F);
-            const style = isSelected ? 'color:var(--success-text); font-weight:bold;' : 'color:var(--text-main);';
-            const borderStyle = 'border-bottom:1px solid var(--border-color);';
-            const tr = document.createElement('tr');
-            
-            let stdCell = '';
-            if (isSolveForThickness) {
-                 stdCell = `<td style="${style} ${borderStyle}">${row.std}</td>`;
-            }
+        // Updated chart colors to match the new Teal-Orange spectrum
+        const CHART_COLORS = ['#00A5A8', '#F59E0B', '#F37021', '#8b5cf6'];
 
-            tr.innerHTML = `
-                <td style="${style} ${borderStyle}">${mapClass[row.f]}</td>
-                <td style="${style} ${borderStyle}">${row.f}</td>
-                <td style="${style} ${borderStyle}">${row.val}</td>
-                ${stdCell}
-            `;
-            tbody.appendChild(tr);
-        });
-        document.getElementById('tbl-head-val').innerText = `${resultLabel} (${mainResultUnit})`;
-        document.getElementById('card-table').style.display = 'block';
+        const KGCM2_TO_PSI = 14.2233;
+        const BAR_TO_PSI = 14.5038;
+        const MM_TO_IN = 1 / 25.4;
 
-        updateBarChart(chartData, resultLabel, mainResultUnit);
-        generatePressureThicknessChart(D_in, S_psi, E, T, u_t, u_P);
-        
-        prepareReport(D_raw + ' ' + getDisplayUnit(u_D), 
-                      t_raw + ' ' + getDisplayUnit(u_t), 
-                      P_raw + ' ' + getDisplayUnit(u_P), 
-                      document.getElementById('sel-grade').value, S, CA_raw, Tol, F, E, T, 
-                      resultLabel, mainResultVal.toFixed(3) + ' ' + mainResultUnit, tableData, isSolveForThickness);
-    }
+        let barChart = null;
+        let lineChart = null;
+        let savedScenarios = [];
 
-    // --- 6. CHARTS ---
-    function getGridColor() {
-        return getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim();
-    }
-    
-    function getTextColor() {
-        return getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim();
-    }
+        const lastUnits = {
+            'sel-od-unit': 'inch',
+            'sel-wt-unit': 'mm',
+            'sel-press-unit': 'kgcm2'
+        };
 
-    function updateBarChart(data, label, unit) {
-        document.getElementById('card-bar-chart').style.display = 'block';
-        const ctx = document.getElementById('barChart').getContext('2d');
-        const labels = ['Class 1 (0.72)', 'Class 2 (0.60)', 'Class 3 (0.50)', 'Class 4 (0.40)'];
-        
-        if(barChart) barChart.destroy();
-        
-        const gridColor = getGridColor();
-        const textColor = getTextColor();
-
-        barChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: `${label} (${unit})`,
-                    data: data,
-                    backgroundColor: CHART_COLORS,
-                    borderRadius: 4,
-                    barThickness: 30, 
-                    maxBarThickness: 40
-                }]
+        // --- 2. CONVERSION LOGIC ---
+        const converters = {
+            length: {
+                toBase: (v, u) => u === 'inch' ? v : v * MM_TO_IN,
+                fromBase: (v, u) => u === 'inch' ? v : v * 25.4
             },
-            options: {
-                indexAxis: 'y',
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { color: textColor, anchor: 'end', align: 'end', formatter: (v) => v.toFixed(2) }
+            pressure: {
+                toBase: (v, u) => {
+                    if (u === 'kgcm2') return v * KGCM2_TO_PSI;
+                    if (u === 'bar') return v * BAR_TO_PSI;
+                    return v;
                 },
-                scales: {
-                    x: { grid: { color: gridColor }, ticks: { color: textColor } },
-                    y: { grid: { display: false }, ticks: { color: textColor } }
+                fromBase: (v, u) => {
+                    if (u === 'kgcm2') return v / KGCM2_TO_PSI;
+                    if (u === 'bar') return v / BAR_TO_PSI;
+                    return v;
                 }
-            },
-            plugins: [ChartDataLabels]
-        });
-    }
+            }
+        };
 
-    function generatePressureThicknessChart(D_in, S_psi, E, T, u_t, u_P) {
-        document.getElementById('card-line-chart').style.display = 'block';
-        const ctx = document.getElementById('pressureThicknessChart').getContext('2d');
-        
-        const display_u_t = getDisplayUnit(u_t);
-        const display_u_P = getDisplayUnit(u_P);
-        const gridColor = getGridColor();
-        const textColor = getTextColor();
+        function getDisplayUnit(u) {
+            return (u === 'kgcm2') ? 'kg/cm²' : u;
+        }
 
-        const datasets = [];
-        DESIGN_FACTORS.forEach((f, idx) => {
-            const points = [];
-            for(let t_i = 0.1; t_i <= 1.5; t_i += 0.1) {
-                const P_psi = (2 * S_psi * f * E * T * t_i) / D_in;
-                points.push({
-                    x: converters.length.fromBase(t_i, u_t),
-                    y: converters.pressure.fromBase(P_psi, u_P)
+        function handleUnitChange(e) {
+            const select = e.target;
+            const type = select.dataset.type;
+            const inputIds = select.dataset.input.split(',');
+            const newUnit = select.value;
+            const oldUnit = lastUnits[select.id];
+
+            if (!oldUnit || !type || newUnit === oldUnit) return;
+
+            inputIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value !== "") {
+                    const val = parseFloat(el.value);
+                    if (!isNaN(val)) {
+                        const baseVal = converters[type].toBase(val, oldUnit);
+                        const newVal = converters[type].fromBase(baseVal, newUnit);
+                        el.value = (Math.abs(newVal) < 0.01) ? newVal.toPrecision(4) : parseFloat(newVal.toFixed(3));
+                    }
+                }
+            });
+
+            if(select.id === 'sel-wt-unit') {
+                document.getElementById('lbl-ca-unit').innerText = getDisplayUnit(newUnit);
+            }
+
+            lastUnits[select.id] = newUnit;
+            calculate();
+        }
+
+        // --- 3. STORAGE & SHARE LOGIC ---
+        function copyShareLink() {
+            const params = new URLSearchParams();
+            document.querySelectorAll('input, select').forEach(el => {
+                if(el.id && el.value) params.append(el.id, el.value);
+            });
+            Object.keys(lastUnits).forEach(k => params.append(k, lastUnits[k]));
+
+            const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("Shareable Link Copied!");
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("Could not copy link to clipboard. Check permissions.");
+            });
+        }
+
+        function loadFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            if(params.toString() === "") return false;
+
+            params.forEach((val, key) => {
+                const el = document.getElementById(key);
+                if(el) el.value = val;
+                if(lastUnits[key]) lastUnits[key] = val; // Restore units
+            });
+            
+            const unit = lastUnits['sel-wt-unit'] || 'mm';
+            document.getElementById('lbl-ca-unit').innerText = getDisplayUnit(unit);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return true;
+        }
+
+        function saveStateToLocal() {
+            const state = {};
+            document.querySelectorAll('input, select').forEach(el => {
+                if (el.id) state[el.id] = el.value;
+            });
+            localStorage.setItem('pipelineDesignState', JSON.stringify(state));
+        }
+
+        function loadStateFromLocal() {
+            const stored = localStorage.getItem('pipelineDesignState');
+            if (!stored) return false; 
+            try {
+                const state = JSON.parse(stored);
+                Object.keys(state).forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = state[id];
+                });
+                if (state['sel-od-unit']) lastUnits['sel-od-unit'] = state['sel-od-unit'];
+                if (state['sel-wt-unit']) lastUnits['sel-wt-unit'] = state['sel-wt-unit'];
+                if (state['sel-press-unit']) lastUnits['sel-press-unit'] = state['sel-press-unit'];
+                
+                document.getElementById('lbl-ca-unit').innerText = getDisplayUnit(state['sel-wt-unit'] || 'mm');
+                return true;
+            } catch (e) { return false; }
+        }
+
+        // --- 4. INITIALIZATION ---
+        function init() {
+            const npsSel = document.getElementById('sel-nps');
+            Object.keys(NPS_DATA).sort((a,b)=>Number(a)-Number(b)).forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n; opt.textContent = `NPS ${n}"`;
+                npsSel.appendChild(opt);
+            });
+            npsSel.addEventListener('change', handleNpsChange);
+
+            const gradeSel = document.getElementById('sel-grade');
+            Object.keys(API_GRADES).forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g; opt.textContent = `API 5L ${g}`;
+                gradeSel.appendChild(opt);
+            });
+            gradeSel.addEventListener('change', () => {
+                 const g = document.getElementById('sel-grade').value;
+                 if(API_GRADES[g]) document.getElementById('S').value = API_GRADES[g];
+                 calculate();
+            });
+
+            const wtSel = document.getElementById('sel-std-wt');
+            STD_WALLS.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w; 
+                opt.textContent = `${w.toFixed(3)}" (${(w*25.4).toFixed(2)}mm)`;
+                wtSel.appendChild(opt);
+            });
+            wtSel.addEventListener('change', () => {
+                const valIn = parseFloat(wtSel.value);
+                const unit = document.getElementById('sel-wt-unit').value;
+                const val = (unit === 'inch') ? valIn : valIn * 25.4;
+                document.getElementById('t').value = val.toFixed(3);
+                clearInput('P'); 
+                calculate();
+            });
+
+            const storedScenarios = localStorage.getItem('pipelineDesignScenarios');
+            if(storedScenarios) savedScenarios = JSON.parse(storedScenarios);
+
+            document.querySelectorAll('.calc-trigger').forEach(el => {
+                el.addEventListener('input', calculate);
+                el.addEventListener('change', calculate);
+            });
+            document.querySelectorAll('.unit-change-trigger').forEach(el => {
+                el.addEventListener('change', handleUnitChange);
+            });
+
+            if (!loadFromURL()) {
+                if (!loadStateFromLocal()) {
+                    document.getElementById('sel-nps').value = "36";
+                    handleNpsChange(); 
+                    document.getElementById('sel-grade').value = "X60";
+                    document.getElementById('S').value = API_GRADES["X60"];
+                    document.getElementById('P').value = "92"; 
+                    document.getElementById('CA').value = "1"; 
+                    document.getElementById('Tol').value = "10"; 
+                }
+            }
+            calculate();
+        }
+
+        function handleNpsChange() {
+            const nps = document.getElementById('sel-nps').value;
+            if(!NPS_DATA[nps]) return;
+            const data = NPS_DATA[nps];
+            const unit = document.getElementById('sel-od-unit').value;
+            const val = (unit === 'inch') ? data.odIn : data.odMm;
+            document.getElementById('D').value = val.toFixed(3);
+            calculate();
+        }
+
+        function clearInput(id) {
+            if(document.getElementById(id).value !== '') {
+                document.getElementById(id).value = '';
+                calculate();
+            }
+        }
+
+        // --- 5. CALCULATION ENGINE ---
+        function calculate() {
+            saveStateToLocal();
+
+            const getVal = (id) => parseFloat(document.getElementById(id).value);
+            const getUnit = (id) => document.getElementById(id).value;
+
+            const D_raw = getVal('D');
+            const t_raw = getVal('t');
+            const P_raw = getVal('P');
+            const S = getVal('S');
+            const F = getVal('F');
+            const E = getVal('E');
+            const T = getVal('T');
+            const CA_raw = getVal('CA') || 0;
+            const Tol = getVal('Tol') || 0;
+
+            const u_D = getUnit('sel-od-unit');
+            const u_t = getUnit('sel-wt-unit');
+            const u_P = getUnit('sel-press-unit');
+
+            const consoleEl = document.getElementById('validation-console');
+            consoleEl.style.display = 'none';
+            document.getElementById('card-bar-chart').style.display = 'none';
+            document.getElementById('card-line-chart').style.display = 'none';
+            document.getElementById('card-table').style.display = 'none';
+            document.getElementById('res-main-val').innerText = "0.00";
+
+            if (!D_raw || !S || !F || !E || !T) return; 
+
+            const D_in = converters.length.toBase(D_raw, u_D);
+            const CA_in = converters.length.toBase(CA_raw, u_t);
+            const S_psi = S; 
+            
+            const isSolveForThickness = (isNaN(t_raw) || t_raw === 0) && (!isNaN(P_raw) && P_raw > 0);
+            const isSolveForPressure = (!isNaN(t_raw) && t_raw > 0);
+
+            if (!isSolveForThickness && !isSolveForPressure) return; 
+
+            let mainResultVal = 0;
+            let mainResultUnit = '';
+            let resultLabel = '';
+            const chartData = [];
+            const tableData = [];
+
+            const stdHeader = document.getElementById('tbl-head-std');
+            const rptStdHeader = document.getElementById('rpt-head-std');
+
+            if (isSolveForThickness) {
+                stdHeader.style.display = 'table-cell';
+                rptStdHeader.style.display = 'table-cell';
+
+                const P_psi = converters.pressure.toBase(P_raw, u_P);
+                resultLabel = 'Required Thickness';
+                mainResultUnit = getDisplayUnit(u_t);
+
+                DESIGN_FACTORS.forEach(f => {
+                    const t_design_in = (P_psi * D_in) / (2 * S_psi * f * E * T);
+                    const t_nom_in = (t_design_in + CA_in) / (1 - (Tol/100));
+                    
+                    const t_display = converters.length.fromBase(t_nom_in, u_t);
+                    chartData.push(t_display);
+                    
+                    const t_compare_in = t_nom_in; 
+                    let nextStd_in = STD_WALLS.find(w => w >= t_compare_in);
+                    let nextStd_display = "-";
+                    
+                    if (nextStd_in) {
+                        nextStd_display = converters.length.fromBase(nextStd_in, u_t).toFixed(3);
+                    } else {
+                        nextStd_display = "> Max Std";
+                    }
+
+                    if (f === F) mainResultVal = t_display;
+                    tableData.push({ f: f, val: t_display.toFixed(3), std: nextStd_display });
+                });
+
+            } else {
+                // Pressure Mode
+                stdHeader.style.display = 'none';
+                rptStdHeader.style.display = 'none';
+
+                const t_in = converters.length.toBase(t_raw, u_t);
+                resultLabel = 'Max Design Pressure';
+                mainResultUnit = getDisplayUnit(u_P);
+
+                const t_eff_in = t_in * (1 - (Tol/100)) - CA_in;
+
+                if (t_eff_in <= 0) {
+                    consoleEl.style.display = 'block';
+                    consoleEl.innerHTML = '<div class="msg-box msg-error"><i class="fas fa-exclamation-circle"></i> Effective thickness is zero or negative. Check Corrosion Allowance.</div>';
+                    return;
+                }
+
+                DESIGN_FACTORS.forEach(f => {
+                    const P_calc_psi = (2 * S_psi * f * E * T * t_eff_in) / D_in;
+                    const P_display = converters.pressure.fromBase(P_calc_psi, u_P);
+                    chartData.push(P_display);
+                    
+                    if (f === F) mainResultVal = P_display;
+                    tableData.push({ f: f, val: P_display.toFixed(2), std: null });
                 });
             }
-            datasets.push({
-                label: `F=${f}`,
-                data: points,
-                borderColor: CHART_COLORS[idx],
-                borderWidth: 2, pointRadius: 0, fill: false
-            });
-        });
 
-        if(lineChart) lineChart.destroy();
+            document.getElementById('res-main-label').innerText = resultLabel;
+            document.getElementById('res-main-val').innerText = mainResultVal.toFixed(3);
+            document.getElementById('res-main-unit').innerText = mainResultUnit;
 
-        lineChart = new Chart(ctx, {
-            type: 'line',
-            data: { datasets: datasets },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: { labels: { color: textColor } },
-                    tooltip: { mode: 'index', intersect: false }
-                },
-                scales: {
-                    x: { type: 'linear', title: { display: true, text: `Thickness (${display_u_t})`, color:textColor }, grid:{ color:gridColor}, ticks:{ color:textColor} },
-                    y: { title: { display: true, text: `Pressure (${display_u_P})`, color:textColor }, grid:{ color:gridColor}, ticks:{ color:textColor} }
-                }
-            }
-        });
-    }
-
-    // --- 7. SCENARIOS & REPORT ---
-    function toggleMenu() { document.getElementById('main-menu').classList.toggle('show'); }
-    function handleMenuAction(a) {
-        document.getElementById('main-menu').classList.remove('show');
-        if(a === 'scenario') { 
-            document.getElementById('modal-scenarios').style.display = 'flex'; 
-            renderScenarioList(); 
-        } else if (a === 'share') {
-            copyShareLink();
-        } else if (a === 'report') {
-            window.print();
-        }
-    }
-    function closeModal() { document.getElementById('modal-scenarios').style.display = 'none'; }
-
-    function saveScenario() {
-        const name = document.getElementById('scenario-name').value;
-        if(!name) return;
-        const data = {};
-        document.querySelectorAll('input, select').forEach(el => data[el.id] = el.value);
-        savedScenarios.push({ id: Date.now(), name: name, data: data });
-        localStorage.setItem('pipelineScenarios', JSON.stringify(savedScenarios));
-        renderScenarioList();
-        document.getElementById('scenario-name').value = '';
-        const t = document.getElementById('toast');
-        t.innerText = "Scenario Saved!";
-        t.classList.add('show');
-        setTimeout(()=>t.classList.remove('show'), 2000);
-    }
-
-    function loadScenario(id) {
-        const sc = savedScenarios.find(s => s.id === id);
-        if(!sc) return;
-        Object.keys(sc.data).forEach(key => {
-            const el = document.getElementById(key);
-            if(el) el.value = sc.data[key];
-        });
-        lastUnits['sel-od-unit'] = sc.data['sel-od-unit'];
-        lastUnits['sel-wt-unit'] = sc.data['sel-wt-unit'];
-        lastUnits['sel-press-unit'] = sc.data['sel-press-unit'];
-        closeModal();
-        calculate();
-    }
-
-    function deleteScenario(id) {
-        savedScenarios = savedScenarios.filter(s => s.id !== id);
-        localStorage.setItem('pipelineScenarios', JSON.stringify(savedScenarios));
-        renderScenarioList();
-    }
-
-    function renderScenarioList() {
-        const list = document.getElementById('list-scenarios');
-        list.innerHTML = '';
-        savedScenarios.slice().reverse().forEach(s => {
-            const div = document.createElement('div');
-            div.className = 'scenario-item';
-            div.innerHTML = `
-                <span>${s.name}</span>
-                <div>
-                    <button onclick="loadScenario(${s.id})" style="background:var(--accent-color); border:none; color:white; padding:4px 8px; border-radius:4px; margin-right:5px; cursor:pointer;">Load</button>
-                    <button onclick="deleteScenario(${s.id})" style="background:transparent; border:1px solid #ef4444; color:#ef4444; padding:4px 8px; border-radius:4px; cursor:pointer;">X</button>
-                </div>
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    function prepareReport(D, t, P, Grade, S, CA, Tol, F, E, T, ResType, ResVal, TableData, isThicknessMode) {
-        document.getElementById('rpt-date').innerText = new Date().toLocaleString();
-        document.getElementById('rpt-D').innerText = D;
-        document.getElementById('rpt-t').innerText = t;
-        document.getElementById('rpt-P').innerText = P;
-        document.getElementById('rpt-grade').innerText = Grade;
-        document.getElementById('rpt-S').innerText = S;
-        document.getElementById('rpt-CA').innerText = CA;
-        document.getElementById('rpt-Tol').innerText = Tol + '%';
-        document.getElementById('rpt-F').innerText = F;
-        document.getElementById('rpt-E').innerText = E;
-        document.getElementById('rpt-T').innerText = T;
-        document.getElementById('rpt-res-title').innerText = ResType + ':';
-        document.getElementById('rpt-res-val').innerText = ResVal;
-        
-        const tbody = document.getElementById('rpt-body');
-        tbody.innerHTML = '';
-        
-        TableData.forEach(r => {
-            const tr = document.createElement('tr');
-            let stdCol = '';
-            if (isThicknessMode) stdCol = `<td>${r.std}</td>`;
+            const tbody = document.getElementById('result-body');
+            tbody.innerHTML = '';
+            const mapClass = {0.72:'Class 1', 0.6:'Class 2', 0.5:'Class 3', 0.4:'Class 4'};
             
-            tr.innerHTML = `<td>${r.f===0.72?'Class 1':r.f===0.6?'Class 2':r.f===0.5?'Class 3':'Class 4'}</td><td>${r.f}</td><td>${r.val}</td>${stdCol}`;
-            tbody.appendChild(tr);
-        });
-    }
+            tableData.forEach(row => {
+                const isSelected = (row.f === F);
+                const style = isSelected ? 'color:var(--accent-teal); font-weight:700; background:var(--metric-bg);' : 'color:var(--text-primary);';
+                const tr = document.createElement('tr');
+                
+                let stdCell = '';
+                if (isSolveForThickness) {
+                     stdCell = `<td style="${style}">${row.std}</td>`;
+                }
 
-    document.addEventListener('DOMContentLoaded', init);
-</script>
+                tr.innerHTML = `
+                    <td style="${style}">${mapClass[row.f]}</td>
+                    <td style="${style}">${row.f}</td>
+                    <td style="${style}">${row.val}</td>
+                    ${stdCell}
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('tbl-head-val').innerText = `${resultLabel} (${mainResultUnit})`;
+            document.getElementById('card-table').style.display = 'block';
+
+            updateBarChart(chartData, resultLabel, mainResultUnit);
+            generatePressureThicknessChart(D_in, S_psi, E, T, u_t, u_P);
+            
+            prepareReport(D_raw + ' ' + getDisplayUnit(u_D), 
+                          t_raw + ' ' + getDisplayUnit(u_t), 
+                          P_raw + ' ' + getDisplayUnit(u_P), 
+                          document.getElementById('sel-grade').value, S, CA_raw, Tol, F, E, T, 
+                          resultLabel, mainResultVal.toFixed(3) + ' ' + mainResultUnit, tableData, isSolveForThickness);
+        }
+
+        // --- 6. CHARTS ---
+        function getGridColor() { return getComputedStyle(document.documentElement).getPropertyValue('--card-border').trim() || '#334155'; }
+        function getTextColor() { return getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#94a3b8'; }
+
+        function updateBarChart(data, label, unit) {
+            document.getElementById('card-bar-chart').style.display = 'block';
+            const ctx = document.getElementById('barChart').getContext('2d');
+            const labels = ['Class 1 (0.72)', 'Class 2 (0.60)', 'Class 3 (0.50)', 'Class 4 (0.40)'];
+            
+            if(barChart) barChart.destroy();
+            
+            const gridColor = getGridColor();
+            const textColor = getTextColor();
+
+            barChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${label} (${unit})`,
+                        data: data,
+                        backgroundColor: CHART_COLORS,
+                        borderRadius: 4,
+                        barThickness: 30, 
+                        maxBarThickness: 40
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: { color: textColor, anchor: 'end', align: 'end', formatter: (v) => v.toFixed(2), font: { weight: 'bold' } }
+                    },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                        y: { grid: { display: false }, ticks: { color: textColor, font: { weight: '500' } } }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+        function generatePressureThicknessChart(D_in, S_psi, E, T, u_t, u_P) {
+            document.getElementById('card-line-chart').style.display = 'block';
+            const ctx = document.getElementById('pressureThicknessChart').getContext('2d');
+            
+            const display_u_t = getDisplayUnit(u_t);
+            const display_u_P = getDisplayUnit(u_P);
+            const gridColor = getGridColor();
+            const textColor = getTextColor();
+
+            const datasets = [];
+            DESIGN_FACTORS.forEach((f, idx) => {
+                const points = [];
+                for(let t_i = 0.1; t_i <= 1.5; t_i += 0.1) {
+                    const P_psi = (2 * S_psi * f * E * T * t_i) / D_in;
+                    points.push({
+                        x: converters.length.fromBase(t_i, u_t),
+                        y: converters.pressure.fromBase(P_psi, u_P)
+                    });
+                }
+                datasets.push({
+                    label: `F=${f}`,
+                    data: points,
+                    borderColor: CHART_COLORS[idx],
+                    borderWidth: 2, pointRadius: 0, fill: false
+                });
+            });
+
+            if(lineChart) lineChart.destroy();
+
+            lineChart = new Chart(ctx, {
+                type: 'line',
+                data: { datasets: datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { labels: { color: textColor, boxWidth: 12 } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { type: 'linear', title: { display: true, text: `Thickness (${display_u_t})`, color:textColor }, grid:{ color:gridColor}, ticks:{ color:textColor} },
+                        y: { title: { display: true, text: `Pressure (${display_u_P})`, color:textColor }, grid:{ color:gridColor}, ticks:{ color:textColor} }
+                    }
+                }
+            });
+        }
+
+        // --- 7. SCENARIOS & REPORT ---
+        function toggleMenu() { document.getElementById('main-menu').classList.toggle('show'); }
+        function showToast(msg) { 
+            const t = document.getElementById('toast'); 
+            t.innerText = msg; t.classList.add('show'); 
+            setTimeout(() => t.classList.remove('show'), 2500); 
+        }
+
+        function handleMenuAction(a) {
+            document.getElementById('main-menu').classList.remove('show');
+            if(a === 'scenario') { 
+                document.getElementById('modal-scenarios').style.display = 'flex'; 
+                renderScenarioList(); 
+            } else if (a === 'share') {
+                copyShareLink();
+            } else if (a === 'report') {
+                window.print();
+            }
+        }
+        function closeModal() { document.getElementById('modal-scenarios').style.display = 'none'; }
+
+        function saveScenario() {
+            const name = document.getElementById('scenario-name').value.trim();
+            if(!name) return alert("Please enter a scenario name");
+            const data = {};
+            document.querySelectorAll('input, select').forEach(el => { if(el.id) data[el.id] = el.value; });
+            savedScenarios.push({ id: Date.now(), name: name, data: data });
+            localStorage.setItem('pipelineDesignScenarios', JSON.stringify(savedScenarios));
+            renderScenarioList();
+            document.getElementById('scenario-name').value = '';
+            showToast("Scenario Saved!");
+        }
+
+        function loadScenario(id) {
+            const sc = savedScenarios.find(s => s.id === id);
+            if(!sc) return;
+            Object.keys(sc.data).forEach(key => {
+                const el = document.getElementById(key);
+                if(el) el.value = sc.data[key];
+            });
+            lastUnits['sel-od-unit'] = sc.data['sel-od-unit'];
+            lastUnits['sel-wt-unit'] = sc.data['sel-wt-unit'];
+            lastUnits['sel-press-unit'] = sc.data['sel-press-unit'];
+            closeModal();
+            showToast("Scenario Loaded!");
+            calculate();
+        }
+
+        function deleteScenario(id) {
+            savedScenarios = savedScenarios.filter(s => s.id !== id);
+            localStorage.setItem('pipelineDesignScenarios', JSON.stringify(savedScenarios));
+            renderScenarioList();
+        }
+
+        function renderScenarioList() {
+            const list = document.getElementById('list-scenarios');
+            list.innerHTML = '';
+            if(savedScenarios.length === 0) { list.innerHTML = '<div style="padding:15px; color:var(--text-secondary); text-align:center;">No saved scenarios.</div>'; return; }
+            savedScenarios.slice().reverse().forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'scenario-item';
+                div.innerHTML = `
+                    <span style="font-weight:600;">${s.name}</span>
+                    <div>
+                        <button class="btn-action" style="margin-right:8px;" onclick="loadScenario(${s.id})">Load</button>
+                        <button class="btn-action" style="border-color:var(--danger-text); color:var(--danger-text);" onclick="deleteScenario(${s.id})">X</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function prepareReport(D, t, P, Grade, S, CA, Tol, F, E, T, ResType, ResVal, TableData, isThicknessMode) {
+            document.getElementById('rpt-date').innerText = new Date().toLocaleString();
+            document.getElementById('rpt-D').innerText = D;
+            document.getElementById('rpt-t').innerText = t;
+            document.getElementById('rpt-P').innerText = P;
+            document.getElementById('rpt-grade').innerText = Grade;
+            document.getElementById('rpt-S').innerText = S;
+            document.getElementById('rpt-CA').innerText = CA;
+            document.getElementById('rpt-Tol').innerText = Tol + '%';
+            document.getElementById('rpt-F').innerText = F;
+            document.getElementById('rpt-E').innerText = E;
+            document.getElementById('rpt-T').innerText = T;
+            document.getElementById('rpt-res-title').innerText = ResType + ':';
+            document.getElementById('rpt-res-val').innerText = ResVal;
+            
+            const tbody = document.getElementById('rpt-body');
+            tbody.innerHTML = '';
+            
+            TableData.forEach(r => {
+                const tr = document.createElement('tr');
+                let stdCol = '';
+                if (isThicknessMode) stdCol = `<td>${r.std}</td>`;
+                
+                tr.innerHTML = `<td>${r.f===0.72?'Class 1':r.f===0.6?'Class 2':r.f===0.5?'Class 3':'Class 4'}</td><td>${r.f}</td><td>${r.val}</td>${stdCol}`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
